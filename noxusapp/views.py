@@ -9,7 +9,12 @@ from .models import LaboratorioDisponibilidade
 # Create your views here.
 
 
-def novolaboratorio(request):
+def novolaboratorio(request, id=None):
+    if id != None:
+        laboratorio = Laboratorios.objects.get(id)
+        print(laboratorio)
+
+
     return render(request, 'noxusapp/novolaboratorio.html')
 
 
@@ -45,5 +50,4 @@ def addlaboratorio(request):
 
 def homelaboratorio(request):
     laboratorios = Laboratorios.objects.all()
-    print(laboratorios.values())
-    return render(request, 'noxusapp/laboratorios.html')
+    return render(request, 'noxusapp/laboratorios.html', context={"laboratorios":laboratorios})
