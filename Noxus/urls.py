@@ -19,6 +19,5 @@ from django.urls import path,include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('novolaboratorio/', include('noxusapp.urls')),
-    path('addLaboratorio/', include('noxusapp.urls'))
+    path('noxus/', include('noxusapp.urls')),
 ]
