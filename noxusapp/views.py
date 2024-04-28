@@ -4,18 +4,30 @@ import json
 from django.views.decorators.csrf import csrf_exempt
 from .models import Laboratorios
 from .models import LaboratorioDisponibilidade
-
+from .models import Menu
 
 # Create your views here.
 
+def menu(request):
+    menus = Menu.objects.all()
+    todosmenu = ""
+    for menusitem in menus:
+        todosmenu += f'''<li class="menu-item ">
+                  <a href="http://127.0.0.1:8000/{menusitem.url}" class="menu-link">
+                      {menusitem.icone}
+                      <div data-i18n="{menusitem.nome}">{menusitem.nome}</div>
+                  </a>
+              </li>'''
+    return HttpResponse(todosmenu)
+
 
 def novolaboratorio(request, id=None):
+    menus = menu(request)
     if id != None:
         laboratorio = Laboratorios.objects.get(id)
-        print(laboratorio)
+        return render(request, "noxusapp/novolaboratorio.html", context={"laboratorio": laboratorio, "menus": menus})
 
-
-    return render(request, 'noxusapp/novolaboratorio.html')
+    return render(request, 'noxusapp/novolaboratorio.html', context={"menus": menus})
 
 
 @csrf_exempt
@@ -50,4 +62,7 @@ def addlaboratorio(request):
 
 def homelaboratorio(request):
     laboratorios = Laboratorios.objects.all()
-    return render(request, 'noxusapp/laboratorios.html', context={"laboratorios":laboratorios})
+    return render(request, 'noxusapp/laboratorios.html', context={"laboratorios": laboratorios})
+
+
+
