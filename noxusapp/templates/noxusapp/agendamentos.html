@@ -29,7 +29,7 @@
     />
 
     <title>
-        Laboratórios
+        Agendamentos
     </title>
 
     <meta name="description" content="Ferramenta para agendamento de laboratórios da instituição"/>
@@ -76,6 +76,7 @@
     <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
     <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
     <script src="{% static 'assets/js/config.js' %}"></script>
+
 </head>
 
 <body>
@@ -202,53 +203,27 @@
                     <div class="row py-4">
                         <div class="col-md-10 ">
                             <h4 class="fw-bold py-3 mb-4">
-                                Laboratórios
+                                Agendamentos
                             </h4>
-                        </div>
-                        <div class="col-md-2 ">
-                            <button class="btn btn-sm btn-primary pull-right"
-                                    onclick="window.location= 'http://127.0.0.1:8000/noxus/novolaboratorio'">Adicionar
-                                laboratório
-                            </button>
                         </div>
                     </div>
 
                     <div class="row">
-                        {% for laboratorio in laboratorios %}
-
-                            <div class="col-md-4">
+                        <div class="col-md-12">
+                            <div class="col-md-12">
                                 <div class="card mb-4">
-                                    <img class="card-img-top" src="{% static 'assets/img/backgrounds/card-image.png' %}"
-                                         alt="Card image cap">
                                     <div class="card-body">
-                                        <div class="row py-2">
-                                            <div class="col-md-12">
-                                                <h3>{{ laboratorio.nomeLaboratorio }}</h3>
-                                                <p class="text-muted"> {{ laboratorio.descricao }}</p>
-                                                <p class="text-muted"> {{ laboratorio.categoria }}</p>
-                                            </div>
-                                        </div>
-
                                         <div class="row">
-                                            <div class="col-md-8">
-                                                <button class="btn btn-primary btn-sm btn-block"
-                                                        onclick="location.href = `/noxus/editarlaboratorio/{{ laboratorio.id }}`">
-                                                    Detalhes
-                                                </button>
-
-                                            </div>
-                                            <div class="col-md-4">
-                                                <button class="btn btn-danger btn-sm btn-block"
-                                                        onclick="apagarLaboratorio({{ laboratorio.id }})">
-                                                    <i class="bx bx-trash"></i>
-                                                </button>
+                                            <div class="col-md-12">
+                                                <div id='calendar'></div>
                                             </div>
                                         </div>
                                     </div>
-
                                 </div>
                             </div>
-                        {% endfor %}
+                        </div>
+
+
                     </div>
 
                 </div>
@@ -310,39 +285,30 @@
 <script async defer src="https://buttons.github.io/buttons.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"
         integrity="sha256-AFAYEOkzB6iIKnTYZOdUf9FFje6lOTYdwRJKwTN5mks=" crossorigin="anonymous"></script>
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
 <script>
     window.onload = async () => {
         menus("#menu")
     }
 
-    const apagarLaboratorio = async (id) => {
-        alertify.defaults.glossary.title = "Confirmar ação"
-        alertify.defaults.glossary.ok = "Sim"
-        alertify.defaults.glossary.cancel = "Não"
-        alertify.defaults.theme.input = "form-control"
-        alertify.defaults.theme.ok = "btn btn-primary"
-        alertify.defaults.theme.cancel = "btn btn-danger"
-        alertify.defaults.transition = "slide"
+    document.addEventListener('DOMContentLoaded', function () {
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            selectable: true,
+            themeSystem: 'bootstrap5',
+            locale:"pt-br",
+            timeZone:"America/Sao_Paulo",
+              headerToolbar: {
+                  start: 'dayGridMonth,timeGridWeek',
+                  center: 'title',
+                  end: 'prev,next'
+                },
 
-        alertify.confirm("Deseja apagar o laboratorio ?", async function () {
-            let requisicao = await realizarRequisicao({
-                origemRequisicao: `${location.origin}/noxus/dellaboratorio/`,
-                conteudoRequisicao: {"id": id},
-                tipoRequisicao: "DEL"
-            })
-            let resultado = await requisicao.json()
+        });
+        calendar.render();
+    });
 
-            document.querySelector("#notificacao").innerHTML = toastr({
-                theme: resultado.tipo,
-                title: resultado.titulo,
-                message: resultado.mensagem
-            })
-
-            $("#toast").toast("show")
-
-            location.reload()
-        })
-    }
 
 </script>
 </body>
