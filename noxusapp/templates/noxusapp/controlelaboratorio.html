@@ -127,7 +127,8 @@
                                                 Nome do laboratório <span class="text-danger">*</span>
                                             </label>
                                             <input type="text" class="form-control entradas dadosEnviar"
-                                                   name="nomeLaboratorio" value="{{laboratorio.nomeLaboratorio}}" onkeydown="this.classList.remove('has-error')"
+                                                   name="nomeLaboratorio" value="{{ laboratorio.nomeLaboratorio }}"
+                                                   onkeydown="this.classList.remove('has-error')"
                                                    title="Nome do laboratório" id="nomeLaboratorio"
                                                    placeholder="Laboratório 1" aria-describedby="nomeLaboratorioAjuda">
                                             <div id="nomeLaboratorioAjuda" class="form-text">
@@ -141,7 +142,10 @@
                                             <input type="text" class="form-control entradas dadosEnviar"
                                                    onkeydown="this.classList.remove('has-error')" title="Localização"
                                                    id="localizacao" placeholder="Sala 1024"
-                                                   aria-describedby="localizacaoAjuda" name="localizacao"
+                                                   aria-describedby="localizacaoAjuda"
+                                                   name="localizacao"
+                                                   value="{{ laboratorio.local }}"
+
                                             >
                                             <div id="localizacaoAjuda" class="form-text">
                                                 Localização do laboratório. Ex.: Ponto de referência,Número da Sala,etc.
@@ -149,7 +153,8 @@
                                         </div>
                                         <div class="col-md-4">
                                             <label for="selCategoriaLaboratorio" class="form-label">
-                                                Categoria do laboratório<span class="text-danger">*</span>
+                                                Categoria do laboratório
+                                                <span class="text-danger">*</span>
                                             </label>
 
                                             <select class="form-select entradasSeletor dadosEnviar"
@@ -157,9 +162,9 @@
                                                     onkeydown="this.classList.remove('has-error')"
                                                     title="Categoria do laboratório" id="selCategoriaLaboratorio"
                                                     aria-label="Seleção da categoria de laboratório">
-                                                <option value="informatica">Informática</option>
-                                                <option value="quimica">Química</option>
-                                                <option value="biologia">Biologia</option>
+                                                    {% if laboratorio.categoria.id != None %}
+                                                        <option value="{{ laboratorio.categoria.id }}" selected>{{ laboratorio.categoria.nomeCategoria }}</option>
+                                                    {% endif %}
                                             </select>
                                             <div id="selCategoriaLaboratorioAjuda" class="form-text">
                                                 Categoria em que o laboratório pertence. Um laboratório pode está em
@@ -178,11 +183,12 @@
                                             <label for="descricao" class="form-label">
                                                 Descrição do laboratório<span class="text-danger">*</span>
                                             </label>
+
                                             <textarea class="form-control entradas dadosEnviar"
                                                       name="descricaoLaboratorio"
                                                       onkeyup="this.classList.remove('has-error'); document.querySelector('#contadorLetras').innerHTML = `${this.value.length}/1000` "
                                                       title="Descrição" id="descricao" rows="5"
-                                                      placeholder="Laboratório com 20 máquinas de alta potência pronto para atividades que exigem do dispositivo. Possui também climatização do ambiente..."></textarea>
+                                                      placeholder="Laboratório com 20 máquinas de alta potência pronto para atividades que exigem do dispositivo. Possui também climatização do ambiente...">{{laboratorio.descricao}}</textarea>
                                             <span class="badge bg-primary bx-pull-right form-text" id="contadorLetras">0/1000</span>
                                             <div id="descricaoAjuda" class="form-text">
                                                 Descrição de como o laboratório é mantido, informações sobre os
@@ -328,19 +334,57 @@
                 <h5 class="modal-title" id="exampleModalLabel2">Categorias</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body table-responsive text-nowrap">
+                <div class="row">
+                    <div class="col-md-12">
+                        <table class="table table-bordered">
+                            <thead>
+                            <tr>
+                                <th class="text-center">Nome</th>
+                                <th class="text-center">Ação</th>
+                            </tr>
+                            </thead>
+                            <tbody id="tbCategorias">
 
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <label for="nomeCategoria" class="form-label">Nome da categoria</label>
+                        <input type="text" class="form-control" id="nomeCategoria" placeholder="Informática"
+                               aria-describedby="Categoria do laboratorio"
+                               title="A Categoria do laboratório"
+                               onkeydown="
+                                    document.querySelector('#mdlCategorias #nomeCategoria').onkeyup = function(){
+                                            this.value.length === '0' ? btnSalvarCategoria.disabled = true : btnSalvarCategoria.disabled = false
+                                    }
+                                "
+                        >
+                        <div id="helpControlelaboratorio" class="form-text">
+                            Categoria do laboratório
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    Fechar
-                </button>
-                <button type="button" class="btn btn-success">Salvar</button>
+                <div class="row">
+                    <div class="col-md-6">
+                        <button type="button" class="btn btn-secondary float-lg-start" data-bs-dismiss="modal">
+                            Fechar
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <button type="button" class="btn btn-success float-lg-end" id="btnSalvarCategoria" disabled>
+                            Salvar
+                        </button>
+                    </div>
+
+                </div>
             </div>
         </div>
     </div>
-</div>
-
 </div>
 
 
@@ -367,20 +411,29 @@
 <script async defer src="https://buttons.github.io/buttons.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"
         integrity="sha256-AFAYEOkzB6iIKnTYZOdUf9FFje6lOTYdwRJKwTN5mks=" crossorigin="anonymous"></script>
-<script src="{%static 'assets/vendor/js/menus.js' %}"></script>
+<script src="{% static 'assets/vendor/js/menus.js' %}"></script>
 <script>
-    window.onload = async ()=>{
+    window.onload = async () => {
         menus("#menu")
+        let dados = await obterCategorias()
+        if (dados.categorias.length > 0) {
+            let itens = dados.categorias.map(categoria => {
+                return `<option value="${categoria.id}">${categoria.nomeCategoria}</option>`
+            })
+            document.querySelector("#selCategoriaLaboratorio").innerHTML = itens.join("")
+        }else{
+            document.querySelector("#notificacao").innerHTML =
+                toastr({
+                    theme: "warning",
+                    title: "Não encontrou a catogoria",
+                    message: "Categoria não encontrada adicione uma nova categoria para continuar"
+                })
+
+            $("#toast").toast("show")
+        }
     }
-    sessionStorage.setItem("diasDisponiveis", JSON.stringify({
-        "Dom": [],
-        "Seg": [],
-        "Ter": [],
-        "Qua": [],
-        "Qui": [],
-        "Sex": [],
-        "Sab": []
-    }))
+
+    sessionStorage.setItem("diasDisponiveis", JSON.stringify( {{  horarios}} ))
     $("#selCategoriaLaboratorio").select2({
         maximumSelectionLength: 1,
         multiple: true
@@ -412,11 +465,53 @@
         </div>`
     }
 
-    document.querySelector("#btnAddCategoria").onclick = () => {
+    async function obterCategorias(){
+         const requisicao = await realizarRequisicao(
+            {
+                origemRequisicao: `${location.origin}/noxus/categorias/`,
+                tipoRequisicao: "GET"
+            }
+        )
+        return await requisicao.json()
+    }
+
+    document.querySelector("#btnAddCategoria").onclick = async () => {
+       let resultado = await obterCategorias()
+        document.querySelector("#mdlCategorias #tbCategorias").innerHTML =
+            resultado.categorias.map(categoriaitem => {
+                return `<tr>
+                            <td class="text-center">${categoriaitem.nomeCategoria}</td>
+                            <td class="text-center">
+                                <button class="btn btn-danger" onclick="deletarCategoria(${categoriaitem.id})">
+                                    <i class="bx bx-trash"></i>
+                                </button>
+                            </td>
+                        </tr>`
+            }).join("")
         $("#mdlCategorias").modal("toggle")
 
     }
 
+    const deletarCategoria = async (id) => {
+        const requisicao = await realizarRequisicao(
+            {
+                origemRequisicao: `${location.origin}/noxus/delcategoria/`,
+                tipoRequisicao: "DEL",
+                conteudoRequisicao: {"id": id}
+            }
+        )
+
+        const resultado = await requisicao.json()
+
+        document.querySelector("#notificacao").innerHTML =
+            toastr({
+                theme: resultado.tipo,
+                title: resultado.titulo,
+                message: resultado.mensagem
+            })
+
+        $("#toast").toast("show")
+    }
 
     document.querySelector("#btnSalvarLaboratorio").onclick = async () => {
         let entradas = entradaTextoValidar(document.querySelectorAll(".entradas"))
@@ -433,7 +528,8 @@
                     tipoRequisicao: "POST"
                 }
             )
-            let Mensagem = {titulo:"",tipo:"",mensagem:""}}
+            let Mensagem = {titulo: "", tipo: "", mensagem: ""}
+
 
             if (requisicao.ok) {
                 let resultado = await requisicao.json()
@@ -458,89 +554,89 @@
                     message: Mensagem.mensagem
                 })
 
-            $('#toast').toast('show')
-
+            $("#toast").toast("show")
         }
+    }
 
-        const diaSelecionado = (dia, semana, horario, primeiroHorario) => {
-            document.querySelectorAll(semana).forEach(el => {
-                el.classList.remove("active")
-            })
-            dia.classList.add("active")
-            document.querySelector(horario).innerHTML = ""
-            document.querySelector(primeiroHorario).value = ""
+    const diaSelecionado = (dia, semana, horario, primeiroHorario) => {
+        document.querySelectorAll(semana).forEach(el => {
+            el.classList.remove("active")
+        })
+        dia.classList.add("active")
+        document.querySelector(horario).innerHTML = ""
+        document.querySelector(primeiroHorario).value = ""
 
-            let diasDisponiveis = JSON.parse(sessionStorage.getItem("diasDisponiveis"))
-            let diaSelecinadoAux = diasDisponiveis[obterDiaSelecionado()]
-            if (diaSelecinadoAux.length > 0) {
-                let camposDisponiveis = document.querySelectorAll(".horarios")
-                let parse = new DOMParser()
-                while (camposDisponiveis.length < diaSelecinadoAux.length) {
-                    let conteudo = parse.parseFromString(obterNovoHorario(), "text/html")
-                    document.querySelector("#novoHorario").appendChild(conteudo.body.childNodes[0])
-                    camposDisponiveis = document.querySelectorAll(".horarios")
-                }
+        let diasDisponiveis = JSON.parse(sessionStorage.getItem("diasDisponiveis"))
+        let diaSelecinadoAux = diasDisponiveis[obterDiaSelecionado()]
+        if (diaSelecinadoAux.length > 0) {
+            let camposDisponiveis = document.querySelectorAll(".horarios")
+            let parse = new DOMParser()
+            while (camposDisponiveis.length < diaSelecinadoAux.length) {
+                let conteudo = parse.parseFromString(obterNovoHorario(), "text/html")
+                document.querySelector("#novoHorario").appendChild(conteudo.body.childNodes[0])
+                camposDisponiveis = document.querySelectorAll(".horarios")
+            }
 
-                diaSelecinadoAux.forEach(valor => {
-                    let i = 0
-                    while (i <= camposDisponiveis.length) {
-                        if (camposDisponiveis[i].value.trim() == "") {
-                            camposDisponiveis[i].value = valor
-                            break
-                        }
-                        i++
+            diaSelecinadoAux.forEach(valor => {
+                let i = 0
+                while (i <= camposDisponiveis.length) {
+                    if (camposDisponiveis[i].value.trim() == "") {
+                        camposDisponiveis[i].value = valor
+                        break
                     }
-
-                })
-            }
-        }
-
-        function obterDiaSelecionado() {
-            let retorno
-            document.querySelectorAll(".diaSemana").forEach(el => {
-                if (el.classList.contains("active")) {
-                    retorno = el.id
+                    i++
                 }
+
             })
-            return retorno
         }
+    }
 
-        function removerHorario(horario) {
-            let diasDisponiveis = JSON.parse(sessionStorage.getItem("diasDisponiveis"))
-            let horarios = diasDisponiveis[obterDiaSelecionado()]
-            diasDisponiveis[obterDiaSelecionado()] = horarios
-            let repeticoes = diasDisponiveis[obterDiaSelecionado()].toSorted().filter(el => el == horario.value).length
-            if (repeticoes > 1) {
-                horarios = horarios.filter(el => el != horario.value)
-                horarios.push(horario.value)
-                diasDisponiveis[obterDiaSelecionado()] = horarios
-                sessionStorage.setItem("diasDisponiveis", JSON.stringify(diasDisponiveis))
-                horario.parentNode.parentNode.outerHTML = ""
+    function obterDiaSelecionado() {
+        let retorno
+        document.querySelectorAll(".diaSemana").forEach(el => {
+            if (el.classList.contains("active")) {
+                retorno = el.id
             }
+        })
+        return retorno
+    }
 
-        }
-
-        function adicionarHorario(horario) {
-            let diasDisponiveis = JSON.parse(sessionStorage.getItem("diasDisponiveis"))
-            let horarios = diasDisponiveis[obterDiaSelecionado()]
-            if (horarios.includes(horario.value) || horario.value.trim() == "") {
-                horario.classList.add("has-error")
-                document.querySelector("#notificacao").innerHTML =
-                    toastr({
-                        theme: "warning",
-                        title: "Horário existênte",
-                        message: `Já existe esse horário lançado, verifique !`
-                    })
-
-                $('#toast').toast('show')
-                return false
-            }
-
-            horarios.push(horario.value.trim())
+    function removerHorario(horario) {
+        let diasDisponiveis = JSON.parse(sessionStorage.getItem("diasDisponiveis"))
+        let horarios = diasDisponiveis[obterDiaSelecionado()]
+        diasDisponiveis[obterDiaSelecionado()] = horarios
+        let repeticoes = diasDisponiveis[obterDiaSelecionado()].toSorted().filter(el => el == horario.value).length
+        if (repeticoes > 1) {
+            horarios = horarios.filter(el => el != horario.value)
+            horarios.push(horario.value)
             diasDisponiveis[obterDiaSelecionado()] = horarios
             sessionStorage.setItem("diasDisponiveis", JSON.stringify(diasDisponiveis))
-
+            horario.parentNode.parentNode.outerHTML = ""
         }
+
+    }
+
+    function adicionarHorario(horario) {
+        let diasDisponiveis = JSON.parse(sessionStorage.getItem("diasDisponiveis"))
+        let horarios = diasDisponiveis[obterDiaSelecionado()]
+        if (horarios.includes(horario.value) || horario.value.trim() == "") {
+            horario.classList.add("has-error")
+            document.querySelector("#notificacao").innerHTML =
+                toastr({
+                    theme: "warning",
+                    title: "Horário existênte",
+                    message: `Já existe esse horário lançado, verifique !`
+                })
+
+            $('#toast').toast('show')
+            return false
+        }
+
+        horarios.push(horario.value.trim())
+        diasDisponiveis[obterDiaSelecionado()] = horarios
+        sessionStorage.setItem("diasDisponiveis", JSON.stringify(diasDisponiveis))
+
+    }
 
 
 </script>

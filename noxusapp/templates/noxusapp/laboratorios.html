@@ -120,7 +120,7 @@
                         <div class="nav-item d-flex align-items-center">
                             <i class="bx bx-search fs-4 lh-0"></i>
                             <input type="text" class="form-control border-0 shadow-none" placeholder=" Pesquisar..."
-                                   aria-label="Search...">
+                                   aria-label="Pesquisar...">
                         </div>
                     </div>
                     <!-- /Search -->
@@ -207,13 +207,25 @@
                         </div>
                         <div class="col-md-2 ">
                             <button class="btn btn-sm btn-primary pull-right"
-                                    onclick="window.location= 'http://127.0.0.1:8000/noxus/novolaboratorio'">Adicionar
-                                laboratório
+                                    onclick="window.location= 'http://127.0.0.1:8000/noxus/controlelaboratorio'">
+                                Adicionar laboratório
                             </button>
                         </div>
                     </div>
 
                     <div class="row">
+                        {% if laboratorios.count == 0 %}
+                            <div class="col-md-12">
+                                <div class="card mb-4">
+                                    <div class="card-body">
+                                        <div class="alert alert-warning dark" role="alert">Não foi encontrado
+                                            laboratórios
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        {% endif %}
                         {% for laboratorio in laboratorios %}
 
                             <div class="col-md-4">
@@ -232,7 +244,7 @@
                                         <div class="row">
                                             <div class="col-md-8">
                                                 <button class="btn btn-primary btn-sm btn-block"
-                                                        onclick="location.href = `/noxus/editarlaboratorio/{{ laboratorio.id }}`">
+                                                        onclick="location.href = `/noxus/controlelaboratorio/{{ laboratorio.id }}`">
                                                     Detalhes
                                                 </button>
 
@@ -258,7 +270,8 @@
 
             <!-- Footer -->
             <footer class="content-footer footer bg-footer-theme  bg-light">
-                <div class="container-xxl d-flex flex-wrap justify-content-between py-2 flex-md-row flex-column">
+                <div
+                    class="container-xxl d-flex flex-wrap justify-content-between py-2 flex-md-row flex-column">
                     <div class="mb-2 mb-md-0">
                         ©
                         <script>
@@ -322,7 +335,7 @@
         alertify.defaults.theme.input = "form-control"
         alertify.defaults.theme.ok = "btn btn-primary"
         alertify.defaults.theme.cancel = "btn btn-danger"
-        alertify.defaults.transition = "slide"
+        alertify.defaults.transition = "fade"
 
         alertify.confirm("Deseja apagar o laboratorio ?", async function () {
             let requisicao = await realizarRequisicao({
