@@ -30,7 +30,12 @@
     />
 
     <title>
-        Novo laboratório
+
+        {% if laboratorio.nomeLaboratorio != None %}
+            Editar laboratório
+        {% else %}
+            Novo laboratório
+        {% endif %}
     </title>
 
     <meta name="description" content="Ferramenta para agendamento de laboratórios da instituição"/>
@@ -162,9 +167,6 @@
                                                     onkeydown="this.classList.remove('has-error')"
                                                     title="Categoria do laboratório" id="selCategoriaLaboratorio"
                                                     aria-label="Seleção da categoria de laboratório">
-                                                    {% if laboratorio.categoria.id != None %}
-                                                        <option value="{{ laboratorio.categoria.id }}" selected>{{ laboratorio.categoria.nomeCategoria }}</option>
-                                                    {% endif %}
                                             </select>
                                             <div id="selCategoriaLaboratorioAjuda" class="form-text">
                                                 Categoria em que o laboratório pertence. Um laboratório pode está em
@@ -187,9 +189,16 @@
                                             <textarea class="form-control entradas dadosEnviar"
                                                       name="descricaoLaboratorio"
                                                       onkeyup="this.classList.remove('has-error'); document.querySelector('#contadorLetras').innerHTML = `${this.value.length}/1000` "
-                                                      title="Descrição" id="descricao" rows="5"
-                                                      placeholder="Laboratório com 20 máquinas de alta potência pronto para atividades que exigem do dispositivo. Possui também climatização do ambiente...">{{laboratorio.descricao}}</textarea>
-                                            <span class="badge bg-primary bx-pull-right form-text" id="contadorLetras">0/1000</span>
+                                                      title="Descrição" id="descricao" rows="5" style="resize: none;"
+                                                      placeholder="Laboratório com 20 máquinas de alta potência pronto para atividades que exigem do dispositivo. Possui também climatização do ambiente...">{{ laboratorio.descricao }}</textarea>
+                                            <span class="badge bg-primary bx-pull-right form-text" id="contadorLetras">
+                                                {% if laboratorio.id != None %}
+                                                    {{laboratorio.descricao|length}}
+                                                {% else %}
+                                                    0
+                                                {% endif %}
+                                                /1000
+                                            </span>
                                             <div id="descricaoAjuda" class="form-text">
                                                 Descrição de como o laboratório é mantido, informações sobre os
                                                 dispositivos
@@ -251,7 +260,7 @@
                                     <div class="row">
                                         <div class="col-md-6">
                                             <label for="nomeLaboratorio" class="form-label">
-                                                Horário
+                                                Abetura
                                             </label>
                                             <input type="time" class="form-control horarios"
                                                    onkeydown="this.classList.remove('has-error')"
@@ -262,6 +271,7 @@
                                         </div>
 
                                     </div>
+
                                     <div id="novoHorario">
 
                                     </div>
@@ -272,15 +282,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="row py-2">
-                                        <div class="col-md-6">
-                                            <button class="btn btn-primary" id="btnAddHorario">
-                                                <i class="bx bxs-plus-square"></i> Adicionar horário
-                                            </button>
 
-                                        </div>
-
-                                    </div>
                                     <div class="row py-2">
                                         <div class="col-md-12">
                                             <button class="btn btn-success pull-right" id="btnSalvarLaboratorio">
@@ -415,13 +417,15 @@
 <script>
     window.onload = async () => {
         menus("#menu")
+
+
         let dados = await obterCategorias()
         if (dados.categorias.length > 0) {
             let itens = dados.categorias.map(categoria => {
                 return `<option value="${categoria.id}">${categoria.nomeCategoria}</option>`
             })
             document.querySelector("#selCategoriaLaboratorio").innerHTML = itens.join("")
-        }else{
+        } else {
             document.querySelector("#notificacao").innerHTML =
                 toastr({
                     theme: "warning",
@@ -431,42 +435,63 @@
 
             $("#toast").toast("show")
         }
+
+        await obterHorariosDisponiveis({{laboratorio.id }})
+        {% if laboratorio.id != None %}
+            document.querySelector("#selCategoriaLaboratorio").value = {{ laboratorio.categoria_id }}
+        {% endif %}
+        $("#selCategoriaLaboratorio").select2({
+            maximumSelectionLength: 1,
+            multiple: true
+        });
+        document.querySelector("span .select2-selection--multiple").style.borderColor = "#D9DEE3"
+        document.querySelector("#Dom").click()
+
     }
 
-    sessionStorage.setItem("diasDisponiveis", JSON.stringify( {{  horarios}} ))
-    $("#selCategoriaLaboratorio").select2({
-        maximumSelectionLength: 1,
-        multiple: true
-    });
-    document.querySelector("span .select2-selection--multiple").style.borderColor = "#D9DEE3"
-    let idHorario = 1
-    document.querySelector("#btnAddHorario").onclick = () => {
-        const parse = new DOMParser()
-        let conteudo = parse.parseFromString(obterNovoHorario(), "text/html")
-        document.querySelector("#novoHorario").appendChild(conteudo.body.childNodes[0])
+    const obterHorariosDisponiveis = async (id = 0) => {
+        let resultado = {
+            horarios: {
+                "Dom": [],
+                "Seg": [],
+                "Ter": [],
+                "Qua": [],
+                "Qui": [],
+                "Sex": [],
+                "Sab": []
+            }
+        }
+
+        if (id !== 0) {
+            const requisicao = await realizarRequisicao({
+                origemRequisicao: `${location.origin}/noxus/obterhorarios/${id}/`,
+                tipoRequisicao: "GET"
+            })
+
+            resultado = await requisicao.json()
+        }
+        sessionStorage.setItem("diasDisponiveis", JSON.stringify(resultado.horarios))
     }
+
+
+
+    let idHorario = 1
 
     const obterNovoHorario = () => {
         idHorario++
 
         return `<div class="row">
           <div class="col-md-6">
-            <label for="horario" class="form-label">
-              Horário  
+            <label for="horario${idHorario}" class="form-label">
+              Fechamento
             </label>                                           
             <input type="time" onblur="adicionarHorario(this)" class="form-control entradasEnvio entradas horarios" title="Horário ${idHorario}" id="horario${idHorario}" placeholder="Horário" aria-describedby="horario${idHorario}">
-          </div>
-
-          <div class="col-md-6" style="padding-top: 1.8rem !important;">
-            <button class="btn btn-danger" onclick="removerHorario(horario${idHorario})">
-                <i class='bx bxs-trash'></i>
-              </button>
           </div>
         </div>`
     }
 
-    async function obterCategorias(){
-         const requisicao = await realizarRequisicao(
+    async function obterCategorias() {
+        const requisicao = await realizarRequisicao(
             {
                 origemRequisicao: `${location.origin}/noxus/categorias/`,
                 tipoRequisicao: "GET"
@@ -476,7 +501,7 @@
     }
 
     document.querySelector("#btnAddCategoria").onclick = async () => {
-       let resultado = await obterCategorias()
+        let resultado = await obterCategorias()
         document.querySelector("#mdlCategorias #tbCategorias").innerHTML =
             resultado.categorias.map(categoriaitem => {
                 return `<tr>

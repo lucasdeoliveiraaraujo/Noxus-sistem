@@ -31,28 +31,10 @@ def menu(request):
     return HttpResponse(todosmenu)
 
 
-def novolaboratorio(request, id = None):
+def novolaboratorio(request, id:int=None):
     if id != None:
-        horarios = Laboratorios.objects.get(id=id).laboratoriodisponibilidade_set.all()
         laboratorio = Laboratorios.objects.filter(id=id)
-        dadosenvio = {
-            "laboratorios": laboratorio.values()[0],
-            "horarios": {
-                "Dom": [],
-                "Seg": [],
-                "Ter": [],
-                "Qua": [],
-                "Qui": [],
-                "Sex": [],
-                "Sab": []
-            }
-        }
-
-        for horario in horarios.values():
-            dadosenvio["horarios"][f"{horario['diaSemana']}"].append(nvl(str(horario["horaInicio"]), ""))
-            dadosenvio["horarios"][f"{horario['diaSemana']}"].append(nvl(str(horario["horaTermino"]), ""))
-
-        return render(request, "noxusapp/controlelaboratorio.html", context=dadosenvio)
+        return render(request, "noxusapp/controlelaboratorio.html", context={"laboratorio":laboratorio.values()[0]})
 
     return render(request, 'noxusapp/controlelaboratorio.html')
 @csrf_exempt
@@ -61,6 +43,31 @@ def dellaboratorio(request):
     laboratorio = Laboratorios.objects.get(id=dadosenvio["id"])
     laboratorio.delete()
     return HttpResponse('{"tipo":"success","titulo":"Operção realizada com sucesso","mensagem":"Laboratorio apagado com sucesso!"}')
+
+@csrf_exempt
+def obterlaboratorio(request, id:int=None):
+    horarios = Laboratorios.objects.get(id=id).laboratoriodisponibilidade_set.all()
+    dadosenvio = {
+        "horarios": {
+            "Dom": [],
+            "Seg": [],
+            "Ter": [],
+            "Qua": [],
+            "Qui": [],
+            "Sex": [],
+            "Sab": []
+        }
+    }
+    for horario in horarios.values():
+        dadosenvio["horarios"][f"{horario['diaSemana']}"].append(nvl(str(horario["horaInicio"]), ""))
+        dadosenvio["horarios"][f"{horario['diaSemana']}"].append(nvl(str(horario["horaTermino"]), ""))
+
+
+    print(dadosenvio)
+    return HttpResponse(json.dumps(dadosenvio))
+def atualizarlaboratorio(request):
+    dadosenvio = json.loads(request.body)
+    laboratorio = Laboratorios.objects.filter(id=dadosenvio["id"]).update()
 
 @csrf_exempt
 def addlaboratorio(request):
