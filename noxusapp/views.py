@@ -34,9 +34,9 @@ def menu(request):
 def novolaboratorio(request, id:int=None):
     if id != None:
         laboratorio = Laboratorios.objects.filter(id=id)
-        return render(request, "noxusapp/controlelaboratorio.html", context={"laboratorio":laboratorio.values()[0]})
+        return render(request, "noxusapp/controlelaboratorio.html", context={"laboratorio":laboratorio.values()[0],"rota": "noxus/atualizarlaboratorio/"})
 
-    return render(request, 'noxusapp/controlelaboratorio.html')
+    return render(request, 'noxusapp/controlelaboratorio.html', context={"rota": "noxus/addlaboratorio/"})
 @csrf_exempt
 def dellaboratorio(request):
     dadosenvio = json.loads(request.body)
@@ -65,36 +65,48 @@ def obterlaboratorio(request, id:int=None):
 
     print(dadosenvio)
     return HttpResponse(json.dumps(dadosenvio))
+@csrf_exempt
 def atualizarlaboratorio(request):
     dadosenvio = json.loads(request.body)
-    laboratorio = Laboratorios.objects.filter(id=dadosenvio["id"]).update()
-
-@csrf_exempt
-def addlaboratorio(request):
-    dadosenvio = json.loads(request.body)
-    laboratorio = Laboratorios()
+    laboratorio = Laboratorios.objects.get(id=dadosenvio["id"])
     categoria = Categorias.objects.get(id=dadosenvio["categoriaLaboratorio"])
     laboratorio.descricao = str(dadosenvio["descricaoLaboratorio"]).strip()
     laboratorio.nomeLaboratorio = str(dadosenvio["nomeLaboratorio"]).strip()
     laboratorio.local = str(dadosenvio["localizacao"]).strip()
     laboratorio.categoria_id = categoria.id
     laboratorio.save()
+
+    for diasemana in dadosenvio["horarios"]:
+        disponibilidadelaboratorio = Laboratorios.objects.get(id=dadosenvio["id"]).laboratoriodisponibilidade_set.filter(diaSemana=str(diasemana).strip())
+        for indicehorario, horario in enumerate(dadosenvio["horarios"][diasemana]):
+            if indicehorario == 0:
+                disponibilidadelaboratorio.update(horaInicio=horario)
+            else:
+                disponibilidadelaboratorio.update(horaTermino=horario)
+
+    return HttpResponse('{"tipo":"success","titulo":"Dados salvos","mensagem":"Laboratorio salvo com sucesso"}')
+
+@csrf_exempt
+def addlaboratorio(request):
+    dadosenvio = json.loads(request.body)
+    laboratorio = Laboratorios()
     disponibilidadelaboratorio = LaboratorioDisponibilidade()
-    for diaSemana in dadosenvio["horarios"]:
-        disponibilidadelaboratorio = LaboratorioDisponibilidade()
-        disponibilidadelaboratorio.diaSemana = str(diaSemana).strip()
-        hora = 1
-        for horario in dadosenvio["horarios"][diaSemana]:
-            print(horario)
-            print(hora)
-            if hora == 1:
+    categoria = Categorias.objects.get(id=dadosenvio["categoriaLaboratorio"])
+    laboratorio.descricao = str(dadosenvio["descricaoLaboratorio"]).strip()
+    laboratorio.nomeLaboratorio = str(dadosenvio["nomeLaboratorio"]).strip()
+    laboratorio.local = str(dadosenvio["localizacao"]).strip()
+    laboratorio.categoria_id = categoria.id
+    laboratorio.save()
+
+    for diasemana in dadosenvio["horarios"]:
+        disponibilidadelaboratorio.diaSemana = str(diasemana).strip()
+        for indicehorario, horario in enumerate(dadosenvio["horarios"][diasemana]):
+            if indicehorario == 0:
                 disponibilidadelaboratorio.horaInicio = horario
             else:
                 disponibilidadelaboratorio.horaTermino = horario
-            hora += 1
-        disponibilidadelaboratorio.laboratorios_id = laboratorio.id
-        disponibilidadelaboratorio.save()
 
+        disponibilidadelaboratorio.laboratorios_id = laboratorio.id
 
     return HttpResponse('{"tipo":"success","titulo":"Dados salvos","mensagem":"Laboratorio salvo com sucesso"}')
 

@@ -266,7 +266,7 @@
                                                    onkeydown="this.classList.remove('has-error')"
                                                    title="Horário do laboratório" id="horario1" placeholder="Horário"
                                                    aria-describedby="Horário do laboratório"
-                                                   onblur="adicionarHorario(this)">
+                                                   onblur="adicionarHorario(this,0)">
 
                                         </div>
 
@@ -389,6 +389,9 @@
     </div>
 </div>
 
+{% if laboratorio.id != None %}
+<input type="hidden" class="dadosEnviar" name="id" value="{{ laboratorio.id }}" />
+{% endif %}
 
 <!-- / Layout wrapper -->
 
@@ -418,7 +421,6 @@
     window.onload = async () => {
         menus("#menu")
 
-
         let dados = await obterCategorias()
         if (dados.categorias.length > 0) {
             let itens = dados.categorias.map(categoria => {
@@ -446,19 +448,18 @@
         });
         document.querySelector("span .select2-selection--multiple").style.borderColor = "#D9DEE3"
         document.querySelector("#Dom").click()
-
     }
 
     const obterHorariosDisponiveis = async (id = 0) => {
         let resultado = {
             horarios: {
-                "Dom": [],
-                "Seg": [],
-                "Ter": [],
-                "Qua": [],
-                "Qui": [],
-                "Sex": [],
-                "Sab": []
+                "Dom": ["",""],
+                "Seg": ["",""],
+                "Ter": ["",""],
+                "Qua": ["",""],
+                "Qui": ["",""],
+                "Sex": ["",""],
+                "Sab": ["",""]
             }
         }
 
@@ -485,7 +486,7 @@
             <label for="horario${idHorario}" class="form-label">
               Fechamento
             </label>                                           
-            <input type="time" onblur="adicionarHorario(this)" class="form-control entradasEnvio entradas horarios" title="Horário ${idHorario}" id="horario${idHorario}" placeholder="Horário" aria-describedby="horario${idHorario}">
+            <input type="time" onkeydown="this.classList.remove('has-error')" onblur="adicionarHorario(this,1)" class="form-control entradasEnvio entradas horarios" title="Horário ${idHorario}" id="horario${idHorario}" placeholder="Horário" aria-describedby="horario${idHorario}">
           </div>
         </div>`
     }
@@ -542,44 +543,46 @@
         let entradas = entradaTextoValidar(document.querySelectorAll(".entradas"))
         let seletores = validarSeletor(document.querySelectorAll(".entradasSeletor"))
         let campos = entradas.concat(seletores)
-        if (campos.length == 0) {
+        if (campos.length === 0) {
             let horariosSalvos = JSON.parse(sessionStorage.getItem("diasDisponiveis"))
             let dadosEnvio = construirDados(".dadosEnviar")
+            Object.keys(horariosSalvos).filter(el =>{
+                return horariosSalvos[el].includes("")
+            }).forEach(diavazio =>{
+                horariosSalvos[diavazio] = []
+            })
             dadosEnvio.horarios = horariosSalvos
+
             let requisicao = await realizarRequisicao(
                 {
-                    origemRequisicao: `${location.origin}/noxus/addlaboratorio/`,
+                    origemRequisicao: `${location.origin}/{{rota}}`,
                     conteudoRequisicao: dadosEnvio,
                     tipoRequisicao: "POST"
                 }
             )
-            let Mensagem = {titulo: "", tipo: "", mensagem: ""}
-
-
             if (requisicao.ok) {
                 let resultado = await requisicao.json()
-                Mensagem.titulo = resultado.titulo
-                Mensagem.tipo = resultado.tipo
-                Mensagem.mensagem = resultado.mensagem
-            } else {
-                let elementos = campos.map(el => {
-                    el.campo.classList.add("has-error")
-                    return el.descricao
-                }).join(",")
-                elementos = elementos.substring(0, elementos.lastIndexOf(",")) + " e " + elementos.substring(elementos.lastIndexOf(",") + 1, elementos.length)
-                Mensagem.tipo = "warning"
-                Mensagem.titulo = "Campos vazios"
-                Mensagem.mensagem = `Verifique os campos ${elementos}`
-            }
-
-            document.querySelector("#notificacao").innerHTML =
+                document.querySelector("#notificacao").innerHTML =
                 toastr({
-                    theme: Mensagem.tipo,
-                    title: Mensagem.titulo,
-                    message: Mensagem.mensagem
+                    theme: resultado.tipo ,
+                    title: resultado.titulo,
+                    message: resultado.mensagem
                 })
 
-            $("#toast").toast("show")
+                $("#toast").toast("show")
+            }
+        }else {
+            let elementos = campos.map(el => {
+                el.campo.classList.add("has-error")
+                return el.descricao
+            }).join(",")
+            elementos = elementos.substring(0, elementos.lastIndexOf(",")) + " e " + elementos.substring(elementos.lastIndexOf(",") + 1, elementos.length)
+            document.querySelector("#notificacao").innerHTML =
+                toastr({
+                    theme: "warning" ,
+                    title: "Campos vazios",
+                    message: `Verifique os campos: ${elementos}`
+                })
         }
     }
 
@@ -641,7 +644,7 @@
 
     }
 
-    function adicionarHorario(horario) {
+    function adicionarHorario(horario, tipo) {
         let diasDisponiveis = JSON.parse(sessionStorage.getItem("diasDisponiveis"))
         let horarios = diasDisponiveis[obterDiaSelecionado()]
         if (horarios.includes(horario.value) || horario.value.trim() == "") {
@@ -657,7 +660,9 @@
             return false
         }
 
-        horarios.push(horario.value.trim())
+        horarios[tipo] = horario.value.trim()
+
+        //horarios.push(horario.value.trim())
         diasDisponiveis[obterDiaSelecionado()] = horarios
         sessionStorage.setItem("diasDisponiveis", JSON.stringify(diasDisponiveis))
 
