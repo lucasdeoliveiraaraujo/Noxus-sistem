@@ -3,13 +3,10 @@ from django.shortcuts import render
 from django.http import HttpResponse
 import json
 from django.views.decorators.csrf import csrf_exempt
-from .models import Laboratorios
-from .models import LaboratorioDisponibilidade
-from .models import Menu
-from .models import Categorias
+from .models import Laboratorios, Configuracao, LaboratorioDisponibilidade, Menu, Categorias
 from .classes.utils import nvl, gerarUsuario
 from django.contrib.auth.models import User
-import unicodedata
+
 # Create your views here.
 
 def menu(request):
@@ -36,7 +33,7 @@ def menu(request):
 def novolaboratorio(request, id:int=None):
     if id != None:
         laboratorio = Laboratorios.objects.filter(id=id)
-        return render(request, "noxusapp/controlelaboratorio.html", context={"laboratorio":laboratorio.values()[0],"rota": "noxus/atualizarlaboratorio/"})
+        return render(request, "noxusapp/controlelaboratorio.html", context={"laboratorio": laboratorio.values()[0], "rota": "noxus/atualizarlaboratorio/"})
 
     return render(request, 'noxusapp/controlelaboratorio.html', context={"rota": "noxus/addlaboratorio/"})
 @csrf_exempt
@@ -115,9 +112,6 @@ def homelaboratorio(request):
     laboratorios = Laboratorios.objects.all()
     return render(request, 'noxusapp/laboratorios.html', context={"laboratorios": laboratorios})
 
-def login(request):
-    return render(request, "noxusapp/login.html")
-
 def esqueceusenha(request):
     return render(request, "noxusapp/esqueceusenha.html")
 
@@ -168,3 +162,21 @@ def addusuario(request):
         usuario.last_name = sobrenome.strip()
         usuario.save()
         return HttpResponse('{"tipo": "success", "titulo": "Usuário criado", "mensagem": "Usuário criado com sucesso"}')
+
+def configuracoes(request):
+    configuracoes = Configuracao.objects.filter(emailnotificao__isnull=False)
+    return render(request, "noxusapp/configuracoes.html", context={"configuracoes": configuracoes.values()[0]})
+
+@csrf_exempt
+def salvarconfiguracao(request, id=None):
+    dados = json.loads(request.body)
+    if len(Configuracao.objects.all()) == 0:
+        configuracao = Configuracao()
+        configuracao.emailnotificao = str(dados["emailRecuperacao"]).lower()
+        configuracao.save()
+    else:
+        configuracao = Configuracao.objects.get(id=id)
+        configuracao.emailnotificao = str(dados["emailRecuperacao"]).lower()
+        configuracao.save()
+
+    return HttpResponse('{"tipo":"success", "titulo": "Dados salvos com sucesso", "mensagem": "Configurações salvas"}')

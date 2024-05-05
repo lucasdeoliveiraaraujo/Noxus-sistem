@@ -29,7 +29,7 @@
     />
 
     <title>
-        Laboratórios
+        Configurações
     </title>
 
     <meta name="description" content="Ferramenta para agendamento de laboratórios da instituição"/>
@@ -116,20 +116,10 @@
 
                 <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
                     <!-- Search -->
-                    <div class="navbar-nav align-items-center">
-                        <div class="nav-item d-flex align-items-center">
-                            <i class="bx bx-search fs-4 lh-0"></i>
-                            <input type="text" class="form-control border-0 shadow-none" placeholder=" Pesquisar..."
-                                   aria-label="Pesquisar...">
-                        </div>
-                    </div>
                     <!-- /Search -->
 
                     <ul class="navbar-nav flex-row align-items-center ms-auto">
                         <!-- Place this tag where you want the button to render. -->
-                        <li class="nav-item lh-1 me-3">
-                            <span></span>
-                        </li>
 
                         <!-- User -->
                         <li class="nav-item navbar-dropdown dropdown-user dropdown">
@@ -162,7 +152,8 @@
                                                 </div>
                                             </div>
                                             <div class="flex-grow-1">
-                                                <span class="fw-semibold d-block">{{ user.first_name|add:" "|add:user.last_name }}</span>
+                                                <span
+                                                    class="fw-semibold d-block">{{ user.first_name|add:" "|add:user.last_name }}</span>
                                                 <small class="fw-semibold ">{{ user.username }}</small>
                                                 <small class="text-muted"> - Admin</small>
                                             </div>
@@ -203,69 +194,41 @@
                     <div class="row py-4">
                         <div class="col-md-10 ">
                             <h4 class="fw-bold py-3 mb-4">
-                                Laboratórios
+                                Configurações
                             </h4>
                         </div>
-                        <div class="col-md-2 ">
-                            <button class="btn btn-sm btn-primary pull-right"
-                                    onclick="window.location= 'http://127.0.0.1:8000/noxus/controlelaboratorio'">
-                                Adicionar laboratório
-                            </button>
-                        </div>
+
                     </div>
 
                     <div class="row">
-                        {% if laboratorios.count == 0 %}
-                            <div class="col-md-12">
-                                <div class="card mb-4">
-                                    <div class="card-body">
-                                        <div class="alert alert-warning dark" role="alert">Não foi encontrado
-                                            laboratórios
+                        <div class="col-md-12">
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label class="form-label" for="emailRecuperacao">E-mail recuperação de
+                                                senha</label>
+                                            <input type="text" onkeydown="this.classList.remove('has-error')" class="form-control entradas dadosEnviar" id="emailRecuperacao"
+                                                   name="emailRecuperacao" title="E-mail" value="{{ configuracoes.emailnotificao }}">
                                         </div>
                                     </div>
-
                                 </div>
-                            </div>
-                        {% endif %}
-                        {% for laboratorio in laboratorios %}
-
-                            <div class="col-md-4">
-                                <div class="card mb-4">
-                                    <img class="card-img-top" src="{% static 'assets/img/backgrounds/card-image.png' %}"
-                                         alt="Card image cap">
-                                    <div class="card-body">
-                                        <div class="row py-2">
-                                            <div class="col-md-12">
-                                                <h3>{{ laboratorio.nomeLaboratorio }}</h3>
-                                                <p class="text-muted"> {{ laboratorio.descricao }}</p>
-                                                <p class="text-muted"> {{ laboratorio.categoria.nomeCategoria }}</p>
-                                            </div>
-                                        </div>
-
-                                        <div class="row">
-                                            <div class="col-md-8">
-                                                <button class="btn btn-primary btn-sm btn-block"
-                                                        onclick="location.href = `/noxus/controlelaboratorio/{{ laboratorio.id }}`">
-                                                    Detalhes
-                                                </button>
-
-                                            </div>
-                                            <div class="col-md-4">
-                                                <button class="btn btn-danger btn-sm btn-block"
-                                                        onclick="apagarLaboratorio({{ laboratorio.id }})">
-                                                    <i class="bx bx-trash"></i>
-                                                </button>
-                                            </div>
+                                <div class="card-footer">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <button class="btn btn-success pull-right" id="btnSalvarConfiguracoes">
+                                                <i class='bx bxs-save'></i>
+                                                Salvar
+                                            </button>
                                         </div>
                                     </div>
-
                                 </div>
                             </div>
-                        {% endfor %}
+                        </div>
                     </div>
 
                 </div>
-                <div class="" id="notificacao"></div>
+                <div class="" id="notificacao" style="z-index: 1000;"></div>
             </div>
             <!-- / Content -->
 
@@ -329,20 +292,29 @@
         menus("#menu")
     }
 
-    const apagarLaboratorio = async (id) => {
-        alertify.defaults.glossary.title = "Confirmar ação"
-        alertify.defaults.glossary.ok = "Sim"
-        alertify.defaults.glossary.cancel = "Não"
-        alertify.defaults.theme.input = "form-control"
-        alertify.defaults.theme.ok = "btn btn-primary"
-        alertify.defaults.theme.cancel = "btn btn-danger"
-        alertify.defaults.transition = "fade"
+    document.querySelector("#emailRecuperacao").onblur= function(){
+       const validacao = emailValidar([this])
+       if(validacao.length > 0){
+           this.value= ""
+           this.classList.add("has-error")
+           document.querySelector("#notificacao").innerHTML =
+                toastr({
+                    theme: "warning" ,
+                    title: "Email inválido",
+                    message: `Verifique os campos: ${this.title}`
+                })
+           $("#toast").toast("show")
+       }
+    }
 
-        alertify.confirm("Deseja apagar o laboratorio ?", async function () {
+    document.querySelector("#btnSalvarConfiguracoes").onclick = async () => {
+        const validacao = entradaTextoValidar(document.querySelectorAll(".entradas"))
+        if (validacao.length === 0) {
+            let dadosEnvio = construirDados(".dadosEnviar")
             let requisicao = await realizarRequisicao({
-                origemRequisicao: `${location.origin}/noxus/dellaboratorio/`,
-                conteudoRequisicao: {"id": id},
-                tipoRequisicao: "DEL"
+                origemRequisicao: `${location.origin}{% url 'controleconfiguracao' configuracoes.id %}`,
+                conteudoRequisicao: dadosEnvio,
+                tipoRequisicao: "POST"
             })
             let resultado = await requisicao.json()
 
@@ -354,8 +326,22 @@
 
             $("#toast").toast("show")
 
-            location.reload()
-        })
+        }else {
+            let elementos = validacao.map(el => {
+                el.campo.classList.add("has-error")
+                return el.descricao
+            }).join(",")
+            if (validacao.length > 1) {
+                elementos = elementos.substring(0, elementos.lastIndexOf(",")) + " e " + elementos.substring(elementos.lastIndexOf(",") + 1, elementos.length)
+            }
+            document.querySelector("#notificacao").innerHTML =
+                toastr({
+                    theme: "warning" ,
+                    title: "Campos vazios",
+                    message: `Verifique os campos: ${elementos}`
+                })
+            $("#toast").toast("show")
+        }
     }
 
 </script>

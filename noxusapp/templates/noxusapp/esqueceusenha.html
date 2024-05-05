@@ -73,11 +73,13 @@
     <div class="authentication-wrapper authentication-basic container-p-y">
         <div class="authentication-inner py-4">
             <!-- Forgot Password -->
-            <div class="card">
-                <div class="card-body">
-                    <!-- Logo -->
-                    <div class="app-brand justify-content-center">
-                        <a href="javascript:void(0);" class="app-brand-link gap-2">
+            <form action="" method="post">
+                {% csrf_token %}
+                <div class="card">
+                    <div class="card-body">
+                        <!-- Logo -->
+                        <div class="app-brand justify-content-center">
+                            <a href="javascript:void(0);" class="app-brand-link gap-2">
                   <span class="app-brand-logo demo">
                     <svg
                         width="25"
@@ -133,35 +135,42 @@
                       </g>
                     </svg>
                   </span>
-                            <span class="app-brand-text demo text-body fw-bolder">Noxus</span>
-                        </a>
-                    </div>
-                    <!-- /Logo -->
-                    <h4 class="mb-2">Esqueceu a senha 🔒</h4>
-                    <p class="mb-4">Digite o seu e-mail e siga os passos para alterar a senha</p>
+                                <span class="app-brand-text demo text-body fw-bolder">Noxus</span>
+                            </a>
+                        </div>
+                        <!-- /Logo -->
+                        <h4 class="mb-2">Esqueceu a senha 🔒</h4>
+                        <p class="mb-4">Digite o seu e-mail e siga os passos para alterar a senha</p>
 
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input
-                            type="text"
-                            class="form-control"
-                            id="email"
-                            name="email"
-                            placeholder="Digite o seu e-mail"
-                            autofocus
-                            title="o E-mail"
-                        />
-                    </div>
-                    <button class="btn btn-primary d-grid w-100">Enviar link</button>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="email"
+                                name="email"
+                                placeholder="Digite o seu e-mail"
+                                autofocus
+                                title="o E-mail"
+                            />
+                        </div>
+                        <button type="submit" value="Reset password" class="btn btn-primary d-grid w-100">Enviar link
+                        </button>
 
-                    <div class="text-center py-2">
-                        <a href="http://127.0.0.1:8000/noxus/login" class="d-flex align-items-center justify-content-center">
-                            <i class="bx bx-chevron-left scaleX-n1-rtl bx-sm"></i>
-                            Voltar para o login
-                        </a>
+                        <div class="text-center py-2">
+                            <a href="{% url 'login' %}"
+                               class="d-flex align-items-center justify-content-center">
+                                <i class="bx bx-chevron-left scaleX-n1-rtl bx-sm"></i>
+                                Voltar para o login
+                            </a>
+                        </div>
                     </div>
                 </div>
-            </div>
+                {% if form.email.errors %}
+                    {{ form.email.errors }}
+                {% endif %}
+                <p>{{ form.email }}</p>
+            </form>
             <!-- /Forgot Password -->
         </div>
     </div>

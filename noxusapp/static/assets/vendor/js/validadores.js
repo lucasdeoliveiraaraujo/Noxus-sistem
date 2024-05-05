@@ -6,6 +6,13 @@ const entradaTextoValidar = (entradas) =>{
     return validador
 }
 
+const emailValidar = (entradas) =>{
+    let re = /\S+@\S+\.\S+/
+    let validador = entradas.filter(el=>{
+        return !re.test(el.value)
+    })
+    return validador
+}
 const validarSeletor = (seletores,termoGenerico = "Selecione") =>{
     const validador = []
     seletores.forEach(i =>{       
