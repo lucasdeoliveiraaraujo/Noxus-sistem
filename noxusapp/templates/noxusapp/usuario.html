@@ -1,4 +1,5 @@
 {% load static %}
+
 <!DOCTYPE html>
 
 <!-- =========================================================
@@ -18,8 +19,8 @@
     class="light-style layout-menu-fixed"
     dir="ltr"
     data-theme="theme-default"
-    data-assets-path="assets/"
-    data-template="vertical-menu-template-free"
+    data-assets-path="{% static 'assets' %}
+  data-template=" vertical-menu-template-free"
 >
 <head>
     <meta charset="utf-8"/>
@@ -27,53 +28,40 @@
         name="viewport"
         content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
     />
-
-    <title>
-        Laboratórios
-    </title>
-
-    <meta name="description" content="Ferramenta para agendamento de laboratórios da instituição"/>
-
+    
+    <title>Usuários</title>
+    
+    <meta name="description" content=""/>
+    
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{% static '/assets/img/favicon/favicon.ico' %}"/>
-
-
-    <!--assets/img/favicon/favicon.ico Fonts -->
+    <link rel="icon" type="image/x-icon" href="{% static 'assets/img/favicon/favicon.ico' %}"/>
+    
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
     <link
         href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
         rel="stylesheet"
     />
-
+    
     <!-- Icons. Uncomment required icon fonts -->
     <link rel="stylesheet" href="{% static 'assets/vendor/fonts/boxicons.css' %}"/>
-
+    
     <!-- Core CSS -->
     <link rel="stylesheet" href="{% static 'assets/vendor/css/core.css' %}" class="template-customizer-core-css"/>
     <link rel="stylesheet" href="{% static 'assets/vendor/css/theme-default.css' %}"
           class="template-customizer-theme-css"/>
     <link rel="stylesheet" href="{% static 'assets/css/demo.css' %}"/>
-
+    
     <!-- Vendors CSS -->
     <link rel="stylesheet" href="{% static 'assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css' %}"/>
-
-    <link rel="stylesheet"
-          href="{% static 'assets/vendor/libs/select2-bootstrap4-theme/dist/select2-bootstrap4.css' %}">
-
-
-    <link rel="stylesheet"
-          href="{% static 'assets/vendor/libs/select2-bootstrap4-theme/dist/select2-bootstrap4.css' %}">
-
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css"
-          integrity="sha256-FdatTf20PQr/rWg+cAKfl6j4/IY3oohFAJ7gVC3M34E=" crossorigin="anonymous">
+    
     <!-- Page CSS -->
-    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/alertify.min.css"/>
-    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/themes/bootstrap.min.css"/>
+    
     <!-- Helpers -->
     <script src="{% static 'assets/vendor/js/helpers.js' %}"></script>
-
-    <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
+    
+    <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js'%} in the <head> section -->
     <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
     <script src="{% static 'assets/js/config.js' %}"></script>
 </head>
@@ -83,28 +71,28 @@
 <div class="layout-wrapper layout-content-navbar">
     <div class="layout-container">
         <!-- Menu -->
-
         <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
             <div class="app-brand demo">
                 <a href="http://127.0.0.1:8000/noxus/laboratorios" class="app-brand-link">
                     <span class="app-brand-text demo menu-text fw-bolder ms-2">NOXUS</span>
                 </a>
-
+                
                 <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
                     <i class="bx bx-chevron-left bx-sm align-middle"></i>
                 </a>
             </div>
-
+            
             <div class="menu-inner-shadow"></div>
-
+            
             <ul class="menu-inner py-1" id="menu">
             </ul>
         </aside>
         <!-- / Menu -->
-
+        
         <!-- Layout container -->
         <div class="layout-page">
             <!-- Navbar -->
+            
             <nav
                 class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
                 id="layout-navbar">
@@ -113,7 +101,7 @@
                         <i class="bx bx-menu bx-sm"></i>
                     </a>
                 </div>
-
+                
                 <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
                     <!-- Search -->
                     <div class="navbar-nav align-items-center">
@@ -124,13 +112,13 @@
                         </div>
                     </div>
                     <!-- /Search -->
-
+                    
                     <ul class="navbar-nav flex-row align-items-center ms-auto">
                         <!-- Place this tag where you want the button to render. -->
                         <li class="nav-item lh-1 me-3">
                             <span></span>
                         </li>
-
+                        
                         <!-- User -->
                         <li class="nav-item navbar-dropdown dropdown-user dropdown">
                             <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);"
@@ -146,7 +134,7 @@
                                 </div>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
-
+                                
                                 <li>
                                     <a class="dropdown-item" href="#">
                                         <div class="d-flex">
@@ -162,9 +150,8 @@
                                                 </div>
                                             </div>
                                             <div class="flex-grow-1">
-                                                <span class="fw-semibold d-block">{{ user.first_name|add:" "|add:user.last_name }}</span>
-                                                <small class="fw-semibold ">{{ user.username }}</small>
-                                                <small class="text-muted"> - Admin</small>
+                                                <span class="fw-semibold d-block">John Doe</span>
+                                                <small class="text-muted">Admin</small>
                                             </div>
                                         </div>
                                     </a>
@@ -193,171 +180,200 @@
                     </ul>
                 </div>
             </nav>
-
+            
             <!-- / Navbar -->
-            <div class="container-xxl flex-grow-1 container-p-y">
-                <!-- Content wrapper -->
-
-                <div class="content-wrapper">
-                    <!-- Content -->
-                    <div class="row py-4">
-                        <div class="col-md-10 ">
-                            <h4 class="fw-bold py-3 mb-4">
-                                Laboratórios
-                            </h4>
-                        </div>
-                        <div class="col-md-2 ">
-                            <button class="btn btn-sm btn-primary pull-right"
-                                    onclick="window.location= 'http://127.0.0.1:8000/noxus/controlelaboratorio'">
-                                Adicionar laboratório
-                            </button>
-                        </div>
-                    </div>
-
+            
+            <!-- Content wrapper -->
+            <div class="content-wrapper">
+                <!-- Content -->
+                
+                <div class="container-xxl flex-grow-1 container-p-y">
+                    <h4 class="fw-bold py-3 mb-4">Usuários</h4>
+                    
                     <div class="row">
-                        {% if laboratorios.count == 0 %}
-                            <div class="col-md-12">
-                                <div class="card mb-4">
-                                    <div class="card-body">
-                                        <div class="alert alert-warning dark" role="alert">Não foi encontrado
-                                            laboratórios
+                        <div class="col-md-12">
+                            <div class="card mb-4">
+                                <h5 class="card-header">Detalhe do perfil</h5>
+                                <!-- Account -->
+                                <div class="card-body">
+                                    <div class="d-flex align-items-start align-items-sm-center gap-4">
+                                        <img src="{% static 'assets/img/avatars/1.png' %}" alt=" user-avatar"
+                                             class="d-block rounded"
+                                             height="100"
+                                             width="100"
+                                             id="uploadedAvatar"
+                                        />
+                                        <div class="button-wrapper">
+                                            <label for="upload" class="btn btn-primary me-2 mb-4" tabindex="0">
+                                                <span class="d-none d-sm-block">Altera foto</span>
+                                                <i class="bx bx-upload d-block d-sm-none"></i>
+                                                <input
+                                                    type="file"
+                                                    id="upload"
+                                                    class="account-file-input"
+                                                    hidden
+                                                    accept="image/png, image/jpeg"
+                                                />
+                                            </label>
+                                            <button type="button"
+                                                    class="btn btn-outline-secondary account-image-reset mb-4">
+                                                <i class="bx bx-reset d-block d-sm-none"></i>
+                                                <span class="d-none d-sm-block">Remover</span>
+                                            </button>
+                                            
+                                            <p class="text-muted mb-0">Permitido JPG ou PNG. Tamanho máximo de 800K</p>
                                         </div>
                                     </div>
-
                                 </div>
-                            </div>
-                        {% endif %}
-                        {% for laboratorio in laboratorios %}
+                                <hr class="my-0"/>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="nome" class="form-label">Nome</label>
+                                            <input class="form-control entradas dadosEnviar" type="text" id="nome"
+                                                   name="nome"
+                                                   autofocus="" aria-describedby="inputGroupPrepend" >
+                                            <div id="nomeAjuda" class="form-text">
+                                                Nome utilizado pelo usuáro
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="email" class="form-label">E-mail</label>
+                                                <input class="form-control entradas dadosEnviar" type="text"
+                                                       id="email" name="email">
+                                                <div id="emailAjuda" class="form-text">
+                                                    Endereço de e-mail utilizado por esse usuário
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="perfil" class="form-label">Perfil</label>
+                                                    <select class="form-control entradasSeletor" type="text" id="perfil" name="perfil">
 
-                            <div class="col-md-4">
-                                <div class="card mb-4">
-                                    <img class="card-img-top" src="{% static 'assets/img/backgrounds/card-image.png' %}"
-                                         alt="Card image cap">
-                                    <div class="card-body">
+                                                    </select>
+                                                    <div id="perfilAjuda" class="form-text">
+                                                        Perfil do usuário. Cada usuário pode possui apenas um perfil de
+                                                        acesso. O perfil defini quais dados o usuário pode acessar.
+                                                    </div>
+                                            </div>
+                                        </div>
                                         <div class="row py-2">
                                             <div class="col-md-12">
-                                                <h3>{{ laboratorio.nomeLaboratorio }}</h3>
-                                                <p class="text-muted"> {{ laboratorio.descricao }}</p>
-                                                <p class="text-muted"> {{ laboratorio.categoria.nomeCategoria }}</p>
-                                            </div>
-                                        </div>
-
-                                        <div class="row">
-                                            <div class="col-md-8">
-                                                <button class="btn btn-primary btn-sm btn-block"
-                                                        onclick="location.href = `/noxus/controlelaboratorio/{{ laboratorio.id }}`">
-                                                    Detalhes
-                                                </button>
-
-                                            </div>
-                                            <div class="col-md-4">
-                                                <button class="btn btn-danger btn-sm btn-block"
-                                                        onclick="apagarLaboratorio({{ laboratorio.id }})">
-                                                    <i class="bx bx-trash"></i>
+                                                <button class="btn btn-success pull-right" id="btnUsuario">
+                                                    <i class='bx bxs-save'></i> Salvar
                                                 </button>
                                             </div>
+
                                         </div>
                                     </div>
-
+                                    <!-- /Account -->
                                 </div>
+
                             </div>
-                        {% endfor %}
+                        </div>
                     </div>
-
                 </div>
-                <div class="" id="notificacao"></div>
+                <!-- / Content -->
+
+                <!-- Footer -->
+                <footer class="content-footer footer bg-footer-theme  bg-light">
+                    <div
+                        class="container-xxl d-flex flex-wrap justify-content-between py-2 flex-md-row flex-column">
+                        <div class="mb-2 mb-md-0">
+                            ©
+                            <script>
+                                document.write(new Date().getFullYear());
+                            </script>
+                            Noxus
+
+                        </div>
+
+                    </div>
+                </footer>
+                <!-- / Footer -->
+
+                <div class="content-backdrop fade"></div>
             </div>
-            <!-- / Content -->
-
-            <!-- Footer -->
-            <footer class="content-footer footer bg-footer-theme  bg-light">
-                <div
-                    class="container-xxl d-flex flex-wrap justify-content-between py-2 flex-md-row flex-column">
-                    <div class="mb-2 mb-md-0">
-                        ©
-                        <script>
-                            document.write(new Date().getFullYear());
-                        </script>
-                        Noxus
-
-                    </div>
-
-                </div>
-            </footer>
-            <!-- / Footer -->
-
-            <div class="content-backdrop fade"></div>
+            <!-- Content wrapper -->
         </div>
-        <!-- Content wrapper -->
+        <!-- / Layout page -->
     </div>
-    <!-- / Layout page -->
+
+    <!-- Overlay -->
+    <div class="layout-overlay layout-menu-toggle"></div>
 </div>
-
-<!-- Overlay -->
-<div class="layout-overlay layout-menu-toggle"></div>
-
-<script src="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/alertify.min.js"></script>
-
-
 <!-- / Layout wrapper -->
 
+
 <!-- Core JS -->
-<!-- build:js assets/vendor/js/core.js -->
+<!-- build:js assets/vendor/js/core.js'%} -->
 <script src="{% static 'assets/vendor/libs/jquery/jquery.js' %}"></script>
 <script src="{% static 'assets/vendor/libs/popper/popper.js' %}"></script>
 <script src="{% static 'assets/vendor/js/bootstrap.js' %}"></script>
 <script src="{% static 'assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js' %}"></script>
 
 <script src="{% static 'assets/vendor/js/menu.js' %}"></script>
-<script src="{% static 'assets/vendor/js/validadores.js' %}"></script>
-<script src="{% static 'assets/vendor/js/toast.js' %}"></script>
-
-<script src="{% static 'assets/vendor/js/requisicao.js' %}"></script>
-<script src="{% static 'assets/vendor/js/menus.js' %}"></script>
-<script src="{% static 'assets/vendor/js/modal.js' %}"></script>
 <!-- endbuild -->
 
+<!-- Vendors JS -->
+<script src="{% static 'assets/vendor/js/menus.js' %}"></script>
+<script src="{% static 'assets/vendor/js/validadores.js' %}"></script>
+<script src="{% static 'assets/vendor/js/toast.js' %}"></script>
+<script src="{% static 'assets/vendor/js/requisicao.js' %}"></script>
 <!-- Main JS -->
 <script src="{% static 'assets/js/main.js' %}"></script>
 
+<!-- Page JS -->
+<script src="{% static 'assets/js/pages-account-settings-account.js' %}"></script>
+
 <!-- Place this tag in your head or just before your close body tag. -->
-<script async defer src="https://buttons.github.io/buttons.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"
-        integrity="sha256-AFAYEOkzB6iIKnTYZOdUf9FFje6lOTYdwRJKwTN5mks=" crossorigin="anonymous"></script>
+<script async defer src="https://buttons.github.io/buttons.js'%}"></script>
 <script>
     window.onload = async () => {
         menus("#menu")
     }
 
-    const apagarLaboratorio = async (id) => {
-        alertify.defaults.glossary.title = "Confirmar ação"
-        alertify.defaults.glossary.ok = "Sim"
-        alertify.defaults.glossary.cancel = "Não"
-        alertify.defaults.theme.input = "form-control"
-        alertify.defaults.theme.ok = "btn btn-primary"
-        alertify.defaults.theme.cancel = "btn btn-danger"
-        alertify.defaults.transition = "fade"
+    document.querySelector("#btnUsuario").onclick = async ()=>{
+        let entradas = entradaTextoValidar(document.querySelectorAll(".entradas"))
+        let seletores = validarSeletor(document.querySelectorAll(".entradasSeletor"))
+        let campos = entradas.concat(seletores)
+        if (campos.length === 0) {
+            let dadosEnvio = construirDados(".dadosEnviar")
+            let requisicao = await realizarRequisicao(
+                {
+                    origemRequisicao: `${location.origin}/addusuario`,
+                    conteudoRequisicao: dadosEnvio,
+                    tipoRequisicao: "POST"
+                }
+            )
 
-        alertify.confirm("Deseja apagar o laboratorio ?", async function () {
-            let requisicao = await realizarRequisicao({
-                origemRequisicao: `${location.origin}/noxus/dellaboratorio/`,
-                conteudoRequisicao: {"id": id},
-                tipoRequisicao: "DEL"
-            })
-            let resultado = await requisicao.json()
+            if (requisicao.ok) {
+                let resultado = await requisicao.json()
+                document.querySelector("#notificacao").innerHTML =
+                toastr({
+                    theme: resultado.tipo ,
+                    title: resultado.titulo,
+                    message: resultado.mensagem
+                })
 
-            document.querySelector("#notificacao").innerHTML = toastr({
-                theme: resultado.tipo,
-                title: resultado.titulo,
-                message: resultado.mensagem
-            })
-
-            $("#toast").toast("show")
-
-            location.reload()
-        })
+                $("#toast").toast("show")
+            }
+        }else {
+            let elementos = campos.map(el => {
+                el.campo.classList.add("has-error")
+                return el.descricao
+            }).join(",")
+            elementos = elementos.substring(0, elementos.lastIndexOf(",")) + " e " + elementos.substring(elementos.lastIndexOf(",") + 1, elementos.length)
+            document.querySelector("#notificacao").innerHTML =
+                toastr({
+                    theme: "warning" ,
+                    title: "Campos vazios",
+                    message: `Verifique os campos: ${elementos}`
+                })
+        }
     }
-
 </script>
 </body>
 </html>

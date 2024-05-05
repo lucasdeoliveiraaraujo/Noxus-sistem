@@ -16,6 +16,8 @@ urlpatterns = [
     path("agendamentos/", views.agendamentos, name="agendamentos"),
     path("addcategoria/", views.addcategoria, name="addcategoria"),
     path("categorias/", views.categorias, name="categorias"),
-    path("obterhorarios/<int:id>/", views.obterlaboratorio, name="obterhorarios")
+    path("obterhorarios/<int:id>/", views.obterlaboratorio, name="obterhorarios"),
+    path("usuarios/", views.usuarios, name="usuarios"),
+    path("addusuario/", views.addusuario, name="addusuario"),
 ]
 

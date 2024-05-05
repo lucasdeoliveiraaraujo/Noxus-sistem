@@ -1,3 +1,4 @@
+import django.contrib.auth.models
 from django.shortcuts import render
 from django.http import HttpResponse
 import json
@@ -6,8 +7,9 @@ from .models import Laboratorios
 from .models import LaboratorioDisponibilidade
 from .models import Menu
 from .models import Categorias
-from .classes.utils import nvl
-
+from .classes.utils import nvl, gerarUsuario
+from django.contrib.auth.models import User
+import unicodedata
 # Create your views here.
 
 def menu(request):
@@ -61,8 +63,6 @@ def obterlaboratorio(request, id:int=None):
     for horario in horarios.values():
         dadosenvio["horarios"][f"{horario['diaSemana']}"].append(nvl(str(horario["horaInicio"]), ""))
         dadosenvio["horarios"][f"{horario['diaSemana']}"].append(nvl(str(horario["horaTermino"]), ""))
-
-
     print(dadosenvio)
     return HttpResponse(json.dumps(dadosenvio))
 @csrf_exempt
@@ -145,3 +145,26 @@ def categorias(request):
 
 
     return HttpResponse(jsonenvio)
+
+
+def usuarios(request):
+    return render(request, "noxusapp/usuario.html")
+
+def addusuario(request):
+    dados = json.loads(request.body)
+    nomeusuario = gerarUsuario(dados["nome"])
+    try:
+        User.objects.get(username=nomeusuario)
+    except django.contrib.auth.models.User.DoesNotExist:
+        usuario = User.objects.create_user(nomeusuario,  dados["email"], dados["senha"])
+        nome = dados["nome"].upper().split()
+        sobrenome = ""
+        for indice, nomes in enumerate(nome):
+            if indice == 0:
+                usuario.first_name = nomes
+            else:
+                sobrenome += f"{nomes} "
+
+        usuario.last_name = sobrenome.strip()
+        usuario.save()
+        return HttpResponse('{"tipo": "success", "titulo": "Usuário criado", "mensagem": "Usuário criado com sucesso"}')
