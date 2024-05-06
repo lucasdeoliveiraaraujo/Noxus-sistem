@@ -205,11 +205,62 @@
                             <div class="card mb-4">
                                 <div class="card-body">
                                     <div class="row">
-                                        <div class="col-md-6">
-                                            <label class="form-label" for="emailRecuperacao">E-mail recuperação de
-                                                senha</label>
-                                            <input type="text" onkeydown="this.classList.remove('has-error')" class="form-control entradas dadosEnviar" id="emailRecuperacao"
-                                                   name="emailRecuperacao" title="E-mail" value="{{ configuracoes.emailnotificao }}">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label" for="emailRecuperacao">
+                                                E-mail recuperação de senha
+                                            </label>
+                                            <input type="text" onkeydown="this.classList.remove('has-error')"
+                                                   class="form-control entradas dadosEnviar" id="emailRecuperacao"
+                                                   name="emailRecuperacao" title="E-mail"
+                                                   value="{{ configuracoes.emailnotificao }}">
+                                            <div id="helpEmail" class="form-text">
+                                                Email utilizado para emissão de e-mails do sistema para outros
+                                                remetentes
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 v">
+                                            <label class="form-label" for="porta">Porta</label>
+                                            <input type="text" onkeydown="this.classList.remove('has-error')"
+                                                   class="form-control entradas dadosEnviar" id="porta"
+                                                   name="porta" title="a Porta" value="{{ configuracoes.porta }}">
+                                            <div id="helpPorta" class="form-text">
+                                                Porta utilizada para estabelecer a comunicação no servidor SMTP
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <label class="form-label" for="tls">TLS</label>
+                                            <select onchange="this.classList.remove('has-error')"
+                                                    class="form-select entradas dadosEnviar" id="tls"
+                                                    name="tls" title="o TLS">
+                                                <option value="S">Sim</option>
+                                                <option value="N">Não</option>
+                                            </select>
+                                            <div id="helpTLS" class="form-text">
+                                                Protocolo de segurança TLS
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label" for="senha">Senha</label>
+                                            <input type="password" onkeydown="this.classList.remove('has-error')"
+                                                   class="form-control entradas dadosEnviar" id="senha"
+                                                   name="senha" title="a Senha" value="{{ configuracoes.senha }}">
+                                            <div id="helpSenha" class="form-text">
+                                                Digite a senha do e-mail. Existem aplicações que
+                                                precisam gerar senhas específicas para aplicações de
+                                                terceiros
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label" for="hostname">Hostname</label>
+                                            <input type="text" onkeydown="this.classList.remove('has-error')"
+                                                   class="form-control entradas dadosEnviar" id="hostname"
+                                                   name="hostname" title="o hostname" value="{{ configuracoes.host }}">
+                                            <div id="helpSenha" class="form-text">
+                                                Digite o servidor de envio de email
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -228,7 +279,7 @@
                     </div>
 
                 </div>
-                <div class="" id="notificacao" style="z-index: 1000;"></div>
+                <div class="" id="notificacao"></div>
             </div>
             <!-- / Content -->
 
@@ -290,21 +341,28 @@
 <script>
     window.onload = async () => {
         menus("#menu")
+        {% if configuracoes.id != None %}
+            {% if configuracoes.tls %}
+                document.querySelector("#tls").value = "S"
+            {% else %}
+                document.querySelector("#tls").value = "N"
+            {% endif %}
+        {% endif %}
     }
 
-    document.querySelector("#emailRecuperacao").onblur= function(){
-       const validacao = emailValidar([this])
-       if(validacao.length > 0){
-           this.value= ""
-           this.classList.add("has-error")
-           document.querySelector("#notificacao").innerHTML =
+    document.querySelector("#emailRecuperacao").onblur = function () {
+        const validacao = emailValidar([this])
+        if (validacao.length > 0) {
+            this.value = ""
+            this.classList.add("has-error")
+            document.querySelector("#notificacao").innerHTML =
                 toastr({
-                    theme: "warning" ,
+                    theme: "warning",
                     title: "Email inválido",
                     message: `Verifique os campos: ${this.title}`
                 })
-           $("#toast").toast("show")
-       }
+            $("#toast").toast("show")
+        }
     }
 
     document.querySelector("#btnSalvarConfiguracoes").onclick = async () => {
@@ -326,7 +384,7 @@
 
             $("#toast").toast("show")
 
-        }else {
+        } else {
             let elementos = validacao.map(el => {
                 el.campo.classList.add("has-error")
                 return el.descricao
@@ -336,7 +394,7 @@
             }
             document.querySelector("#notificacao").innerHTML =
                 toastr({
-                    theme: "warning" ,
+                    theme: "warning",
                     title: "Campos vazios",
                     message: `Verifique os campos: ${elementos}`
                 })

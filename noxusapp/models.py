@@ -23,3 +23,7 @@ class Menu(models.Model):
 
 class Configuracao(models.Model):
     emailnotificao = models.EmailField(max_length=200, default=None, null=True, blank=True)
+    porta = models.IntegerField(default=None, null=True, blank=True)
+    tls = models.BooleanField(default=True, null=True, blank=True)
+    senha = models.CharField(max_length=500, default=None, null=True, blank=True)
+    host = models.CharField(max_length=200, default=None, null=True, blank=True)

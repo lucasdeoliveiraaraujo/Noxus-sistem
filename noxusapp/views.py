@@ -173,10 +173,25 @@ def salvarconfiguracao(request, id=None):
     if len(Configuracao.objects.all()) == 0:
         configuracao = Configuracao()
         configuracao.emailnotificao = str(dados["emailRecuperacao"]).lower()
+        if dados["tls"] == "S":
+            configuracao.tls = True
+        else:
+            configuracao.tls = False
+
+        configuracao.porta = int(dados["porta"])
+        configuracao.senha = dados["senha"]
+        configuracao.host = str(dados["hostname"]).strip()
         configuracao.save()
     else:
         configuracao = Configuracao.objects.get(id=id)
         configuracao.emailnotificao = str(dados["emailRecuperacao"]).lower()
+        if dados["tls"] == "S":
+            configuracao.tls = True
+        else:
+            configuracao.tls = False
+        configuracao.porta = int(dados["porta"])
+        configuracao.senha = dados["senha"]
+        configuracao.host = str(dados["hostname"]).strip()
         configuracao.save()
 
     return HttpResponse('{"tipo":"success", "titulo": "Dados salvos com sucesso", "mensagem": "Configurações salvas"}')
