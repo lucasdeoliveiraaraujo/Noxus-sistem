@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 # Create your models here.
 class Categorias(models.Model):
@@ -15,6 +16,14 @@ class LaboratorioDisponibilidade(models.Model):
     diaSemana = models.CharField(max_length=3, default=None, null=True, blank=True)
     horaInicio = models.TimeField(auto_now=False, null=True, blank=True)
     horaTermino = models.TimeField(auto_now=False, null=True, blank=True)
+
+class LaboratorioAgendamento(models.Model):
+    usuario = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True)
+    laboratorios = models.ForeignKey(Laboratorios, on_delete=models.CASCADE, blank=True, null=True)
+    diaSemana = models.CharField(max_length=3, default=None, null=True, blank=True)
+    horaInicio = models.TimeField(auto_now=False, null=True, blank=True)
+    horaTermino = models.TimeField(auto_now=False, null=True, blank=True)
+
 
 class Menu(models.Model):
     nome = models.CharField(max_length=50, default=None, null=True, blank=True)

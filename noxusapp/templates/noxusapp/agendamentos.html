@@ -163,7 +163,8 @@
                                                 </div>
                                             </div>
                                             <div class="flex-grow-1">
-                                                <span class="fw-semibold d-block">{{ user.first_name|add:" "|add:user.last_name }}</span>
+                                                <span
+                                                    class="fw-semibold d-block">{{ user.first_name|add:" "|add:user.last_name }}</span>
                                                 <small class="fw-semibold ">{{ user.username }}</small>
                                                 <small class="text-muted"> - Admin</small>
                                             </div>
@@ -294,18 +295,34 @@
 
     document.addEventListener('DOMContentLoaded', function () {
         var calendarEl = document.getElementById('calendar');
+
+
         var calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'dayGridMonth',
+            events: [
+                {
+                  title: 'My Event',
+                  start: '2024-05-06',
+                  url: 'https://google.com/'
+                }
+            ],
+            initialView: 'timeGridWeek',
             selectable: true,
             themeSystem: 'bootstrap5',
-            locale:"pt-br",
-            timeZone:"America/Sao_Paulo",
-              headerToolbar: {
-                  start: 'dayGridMonth,timeGridWeek',
-                  center: 'title',
-                  end: 'prev,next'
-                },
+            locale: "pt-br",
+            timeZone: "America/Sao_Paulo",
+            headerToolbar: {
+                start: 'dayGridMonth,timeGridWeek',
+                center: 'title',
+                end: 'prev,next'
+            },
+            eventClick: function (info) {
+                alert('Event: ' + info.event.title);
+                alert('Coordinates: ' + info.jsEvent.pageX + ',' + info.jsEvent.pageY);
+                alert('View: ' + info.view.type);
 
+                // change the border color just for fun
+                info.el.style.borderColor = 'red';
+            }
         });
         calendar.render();
     });

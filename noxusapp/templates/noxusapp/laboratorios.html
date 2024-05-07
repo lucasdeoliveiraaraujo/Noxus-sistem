@@ -119,16 +119,27 @@
                     <div class="navbar-nav align-items-center">
                         <div class="nav-item d-flex align-items-center">
                             <i class="bx bx-search fs-4 lh-0"></i>
-                            <input type="text" class="form-control border-0 shadow-none" placeholder=" Pesquisar..."
-                                   aria-label="Pesquisar...">
+                            <input class="form-control border-0 shadow-none d-none " type="datetime-local"
+                                   id="dataFiltro" name="pesquisa">
+                            <input type="text" class="form-control border-0 shadow-none dadosEnviar"
+                                   placeholder=" Pesquisar..."
+                                   aria-label="Pesquisar..." id="inpPesquisa" name="pesquisa">
                         </div>
+
                     </div>
                     <!-- /Search -->
 
                     <ul class="navbar-nav flex-row align-items-center ms-auto">
                         <!-- Place this tag where you want the button to render. -->
                         <li class="nav-item lh-1 me-3">
-                            <span></span>
+                            <div class="navbar-nav align-items-center">
+                                <select class="form-select dadosEnviar" name="filtro" id="slcFiltroLaboratorio"
+                                        aria-label="Filtro de busca" onchange="aplicarFiltro(this.value)">
+                                    <option value="nome">Nome</option>
+                                    <option value="data">Data</option>
+                                    <option value="descricao">Descricao</option>
+                                </select>
+                            </div>
                         </li>
 
                         <!-- User -->
@@ -162,7 +173,8 @@
                                                 </div>
                                             </div>
                                             <div class="flex-grow-1">
-                                                <span class="fw-semibold d-block">{{ user.first_name|add:" "|add:user.last_name }}</span>
+                                                <span
+                                                    class="fw-semibold d-block">{{ user.first_name|add:" "|add:user.last_name }}</span>
                                                 <small class="fw-semibold ">{{ user.username }}</small>
                                                 <small class="text-muted"> - Admin</small>
                                             </div>
@@ -201,7 +213,7 @@
                 <div class="content-wrapper">
                     <!-- Content -->
                     <div class="row py-4">
-                        <div class="col-md-10 ">
+                        <div class="col-md-10 col-">
                             <h4 class="fw-bold py-3 mb-4">
                                 Laboratórios
                             </h4>
@@ -228,7 +240,6 @@
                             </div>
                         {% endif %}
                         {% for laboratorio in laboratorios %}
-
                             <div class="col-md-4">
                                 <div class="card mb-4">
                                     <img class="card-img-top" src="{% static 'assets/img/backgrounds/card-image.png' %}"
@@ -255,6 +266,11 @@
                                                         onclick="apagarLaboratorio({{ laboratorio.id }})">
                                                     <i class="bx bx-trash"></i>
                                                 </button>
+                                            </div>
+                                        </div>
+                                        <div class="row my-2">
+                                            <div class="col-md-12">
+                                                <button class="btn btn-block btn-success btn-sm">Reservar</button>
                                             </div>
                                         </div>
                                     </div>
@@ -324,9 +340,44 @@
 <script async defer src="https://buttons.github.io/buttons.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"
         integrity="sha256-AFAYEOkzB6iIKnTYZOdUf9FFje6lOTYdwRJKwTN5mks=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.blockUI/2.70/jquery.blockUI.js" integrity="sha512-QSb5le+VXUEVEQbfljCv8vPnfSbVoBF/iE+c6MqDDqvmzqnr4KL04qdQMCm0fJvC3gCWMpoYhmvKBFqm1Z4c9A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
     window.onload = async () => {
         menus("#menu")
+    }
+
+    document.querySelector("#inpPesquisa").addEventListener("keypress", function (event) {
+        // If the user presses the "Enter" key on the keyboard
+        if (event.key === "Enter") {
+            // Cancel the default action, if needed
+            event.preventDefault();
+            // Trigger the button element with a click
+            pesquisar()
+        }
+    })
+
+    async function pesquisar() {
+        let dadosenvio = construirDados(".dadosEnviar")
+        let requisicao = realizarRequisicao({
+            tipoRequisicao: "POST",
+            conteudoRequisicao: dadosenvio,
+            origemRequisicao: "{% url 'pesquisarlaboratorio' %}"
+        })
+
+    }
+
+
+    const aplicarFiltro = (filtro) => {
+
+        if (filtro === "nome" || filtro === "descricao") {
+            document.querySelector("#inpPesquisa").classList.remove("d-none", "dadosEnviar")
+            document.querySelector("#dataFiltro").classList.add("d-none", "dadosEnviar")
+        } else {
+            document.querySelector("#inpPesquisa").classList.add("d-none", "dadosEnviar")
+            document.querySelector("#dataFiltro").classList.remove("d-none", "dadosEnviar")
+        }
+
+
     }
 
     const apagarLaboratorio = async (id) => {

@@ -22,3 +22,8 @@ urlpatterns = [
     path('noxus/', include('noxusapp.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
 ]
+
+handler404 = "noxusapp.views.handle404error"
+handler400 = "noxusapp.views.handle404error"
+handler403 = "noxusapp.views.handle404error"
+#handler500 = "noxusapp.views.handle404error"

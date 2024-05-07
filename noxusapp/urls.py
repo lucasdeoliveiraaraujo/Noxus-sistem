@@ -16,9 +16,12 @@ urlpatterns = [
     path("addcategoria/", views.addcategoria, name="addcategoria"),
     path("categorias/", views.categorias, name="categorias"),
     path("obterhorarios/<int:id>/", views.obterlaboratorio, name="obterhorarios"),
-    path("usuarios/", views.usuarios, name="usuarios"),
+    path("usuarios/<int:id>/", views.usuarios, name="usuarios"),
+    path("usuarios/$", views.usuarios, name="usuarios"),
     path("addusuario/", views.addusuario, name="addusuario"),
     path("configuracoes/", views.configuracoes, name="configuracoes"),
     path("controleconfiguracao/<int:id>/", views.salvarconfiguracao, name="controleconfiguracao"),
+    path("pesquisarlaboratorio/", views.pesquisarlaboratorio, name="pesquisarlaboratorio"),
 ]
+
 
