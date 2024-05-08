@@ -226,7 +226,7 @@
                         </div>
                     </div>
 
-                    <div class="row">
+                    <div class="row" id="divLaboratorios">
                         {% if laboratorios.count == 0 %}
                             <div class="col-md-12">
                                 <div class="card mb-4">
@@ -239,10 +239,13 @@
                                 </div>
                             </div>
                         {% endif %}
+
                         {% for laboratorio in laboratorios %}
+
                             <div class="col-md-4">
                                 <div class="card mb-4">
-                                    <img class="card-img-top" src="{% static 'assets/img/backgrounds/card-image.png' %}"
+                                    <img class="card-img-top"
+                                         src="{% static 'assets/img/backgrounds/card-image.png' %}"
                                          alt="Card image cap">
                                     <div class="card-body">
                                         <div class="row py-2">
@@ -270,14 +273,17 @@
                                         </div>
                                         <div class="row my-2">
                                             <div class="col-md-12">
-                                                <button class="btn btn-block btn-success btn-sm">Reservar</button>
+                                                <button class="btn btn-block btn-success btn-sm" onclick="location.href = '{% url 'reservarlaboratorio' %} {{laboratorio.id}}'">Reservar</button>
+
                                             </div>
                                         </div>
                                     </div>
 
                                 </div>
                             </div>
+
                         {% endfor %}
+
                     </div>
 
                 </div>
@@ -340,11 +346,23 @@
 <script async defer src="https://buttons.github.io/buttons.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"
         integrity="sha256-AFAYEOkzB6iIKnTYZOdUf9FFje6lOTYdwRJKwTN5mks=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.blockUI/2.70/jquery.blockUI.js" integrity="sha512-QSb5le+VXUEVEQbfljCv8vPnfSbVoBF/iE+c6MqDDqvmzqnr4KL04qdQMCm0fJvC3gCWMpoYhmvKBFqm1Z4c9A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.blockUI/2.70/jquery.blockUI.js"
+        integrity="sha512-QSb5le+VXUEVEQbfljCv8vPnfSbVoBF/iE+c6MqDDqvmzqnr4KL04qdQMCm0fJvC3gCWMpoYhmvKBFqm1Z4c9A=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
     window.onload = async () => {
         menus("#menu")
     }
+
+    document.querySelector("#dataFiltro").addEventListener("keypress", function (event) {
+        // If the user presses the "Enter" key on the keyboard
+        if (event.key === "Enter") {
+            // Cancel the default action, if needed
+            event.preventDefault();
+            // Trigger the button element with a click
+            pesquisar()
+        }
+    })
 
     document.querySelector("#inpPesquisa").addEventListener("keypress", function (event) {
         // If the user presses the "Enter" key on the keyboard
@@ -358,11 +376,56 @@
 
     async function pesquisar() {
         let dadosenvio = construirDados(".dadosEnviar")
-        let requisicao = realizarRequisicao({
+        let requisicao = await realizarRequisicao({
             tipoRequisicao: "POST",
             conteudoRequisicao: dadosenvio,
             origemRequisicao: "{% url 'pesquisarlaboratorio' %}"
         })
+        let resultado = await requisicao.json()
+        if (resultado.laboratorios.length > 0) {
+            document.querySelector("#divLaboratorios").innerHTML = resultado.laboratorios.map(lab => {
+                return `<div class="col-md-4">
+                                <div class="card mb-4">
+                                    <img class="card-img-top" src="{% static 'assets/img/backgrounds/card-image.png' %}"
+                                         alt="Card image cap">
+                                    <div class="card-body">
+                                        <div class="row py-2">
+                                            <div class="col-md-12">
+                                                <h3>${lab.nomeLaboratorio}</h3>
+                                                <p class="text-muted"> ${lab.descricao}</p>
+                                                <p class="text-muted"> ${lab.nomeCategoria}</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-8">
+                                                <button class="btn btn-primary btn-sm btn-block"
+                                                        onclick="location.href = '{% url 'controlelaboratorio' %}${lab.id}'">
+                                                    Detalhes
+                                                </button>
+
+                                            </div>
+                                            <div class="col-md-4">
+                                                <button class="btn btn-danger btn-sm btn-block"
+                                                        onclick="apagarLaboratorio(${lab.id})">
+                                                    <i class="bx bx-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="row my-2">
+                                            <div class="col-md-12">
+                                                <button class="btn btn-block btn-success btn-sm" onclick="location.href = '{% url 'reservarlaboratorio' %}${lab.id}'">Reservar</button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>`
+
+            })
+        } else {
+            document.querySelector("#divLaboratorios").innerHTML = `<div class="alert alert-warning dark" role="alert">Sem resultados para a sua pesquisa</div>`
+        }
 
     }
 
@@ -370,11 +433,15 @@
     const aplicarFiltro = (filtro) => {
 
         if (filtro === "nome" || filtro === "descricao") {
-            document.querySelector("#inpPesquisa").classList.remove("d-none", "dadosEnviar")
-            document.querySelector("#dataFiltro").classList.add("d-none", "dadosEnviar")
+            document.querySelector("#inpPesquisa").classList.remove("d-none")
+            document.querySelector("#inpPesquisa").classList.add("dadosEnviar")
+            document.querySelector("#dataFiltro").classList.add("d-none")
+            document.querySelector("#dataFiltro").classList.remove("dadosEnviar")
         } else {
-            document.querySelector("#inpPesquisa").classList.add("d-none", "dadosEnviar")
-            document.querySelector("#dataFiltro").classList.remove("d-none", "dadosEnviar")
+            document.querySelector("#inpPesquisa").classList.add("d-none")
+            document.querySelector("#inpPesquisa").classList.remove("dadosEnviar")
+            document.querySelector("#dataFiltro").classList.remove("d-none")
+            document.querySelector("#dataFiltro").classList.add("dadosEnviar")
         }
 
 

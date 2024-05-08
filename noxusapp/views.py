@@ -1,12 +1,16 @@
+import datetime
+import numbers
+
 import django.contrib.auth.models
 from django.shortcuts import render
 from django.http import HttpResponse
 import json
 from django.views.decorators.csrf import csrf_exempt
-from .models import Laboratorios, Configuracao, LaboratorioDisponibilidade, Menu, Categorias
+from .models import Laboratorios, Configuracao, LaboratorioDisponibilidade, Menu, Categorias, LaboratorioAgendamento
 from .classes.utils import nvl, gerarUsuario
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 from django.http import Http404
 
 
@@ -246,19 +250,20 @@ def salvarconfiguracao(request, id: int = None):
 @csrf_exempt
 def pesquisarlaboratorio(request):
     dados = json.loads(request.body)
-    print(dados)
     if dados["filtro"] == "nome":
         laboratorios = Laboratorios.objects.filter(nomeLaboratorio__contains=dados["pesquisa"])
     elif dados["filtro"] == "descricao":
         laboratorios = Laboratorios.objects.filter(descricao__contains=dados["pesquisa"])
     else:
-        laboratorios = Laboratorios.objects.filter()
+        datahora = dados["pesquisa"].split("T")
+        data = datahora[0].split("-")
+        databusca = datetime.date(year=int(data[0]), month=int(data[1]), day=int(data[2]))
+        laboratorios = Laboratorios.objects.exclude(id__in=LaboratorioAgendamento.objects.filter(data=databusca).values("laboratorios_id"))
 
     jsonenvio = {
         "laboratorios": []
     }
     if laboratorios.count() > 0:
-        # print(laboratorios.count())
         for laboratorio in laboratorios:
             jsonenvio["laboratorios"].append({
                 "nomeLaboratorio": laboratorio.nomeLaboratorio,
@@ -266,4 +271,37 @@ def pesquisarlaboratorio(request):
                 "nomeCategoria": laboratorio.categoria.nomeCategoria,
                 "id": laboratorio.id
             })
+    return HttpResponse(json.dumps(jsonenvio))
+
+@login_required
+def reservarlaboratorio(request, id:int):
+    laboratorio = Laboratorios.objects.values().get(id=id)
+    print(laboratorio)
+    return render(request, "noxusapp/reservarlaboratorio.html", context={"laboratorio": laboratorio})
+
+@login_required
+@csrf_exempt
+def obterhorariosreservados(request):
+    dados = json.loads(request.body)
+    data = dados["data"].split("-")
+    databusca = datetime.date(year=int(data[0]), month=int(data[1]), day=int(data[2]))
+    jsonenvio = {
+        "agendamentos": []
+    }
+
+    try:
+        horarioreservado = LaboratorioAgendamento.objects.get(id=dados["id"]).objects.filter(dia=databusca)
+
+        if horarioreservado.count() > 0:
+            for horario in horarioreservado:
+                usuarioreservado = User.objects.get(id=horario.usuario_id)
+                jsonenvio["agendamentos"].append({
+                    "usuario": f"{usuarioreservado.first_name} {usuarioreservado.last_name}",
+                    "email": usuarioreservado.email,
+                    "horarioInicio": horario.horaInicio,
+                    "horaTermino": horario.horaTermino,
+                    "id": horario.id
+                })
+    except LaboratorioAgendamento.DoesNotExist:
+        return HttpResponse(json.dumps(jsonenvio))
     return HttpResponse(json.dumps(jsonenvio))

@@ -1,0 +1,609 @@
+{% load static %}
+<!DOCTYPE html>
+
+<!-- =========================================================
+* Sneat - Bootstrap 5 HTML Admin Template - Pro | v1.0.0
+==============================================================
+
+* Product Page: https://themeselection.com/products/sneat-bootstrap-html-admin-template/
+* Created by: ThemeSelection
+* License: You must have a valid license purchased in order to legally use the theme for your project.
+* Copyright ThemeSelection (https://themeselection.com)
+
+=========================================================
+ -->
+<!-- beautify ignore:start -->
+<html
+    lang="pt-br"
+    class="light-style layout-menu-fixed"
+    dir="ltr"
+    data-theme="theme-default"
+    data-assets-path="assets/"
+    data-template="vertical-menu-template-free"
+>
+<head>
+    <meta charset="utf-8"/>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+    />
+
+    <title>
+        Reservar laboratório
+    </title>
+
+    <meta name="description" content="Ferramenta para agendamento de laboratórios da instituição"/>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{% static '/assets/img/favicon/favicon.ico' %}"/>
+
+
+    <!--assets/img/favicon/favicon.ico Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+        rel="stylesheet"
+    />
+
+    <!-- Icons. Uncomment required icon fonts -->
+    <link rel="stylesheet" href="{% static 'assets/vendor/fonts/boxicons.css' %}"/>
+
+    <!-- Core CSS -->
+    <link rel="stylesheet" href="{% static 'assets/vendor/css/core.css' %}" class="template-customizer-core-css"/>
+    <link rel="stylesheet" href="{% static 'assets/vendor/css/theme-default.css' %}"
+          class="template-customizer-theme-css"/>
+    <link rel="stylesheet" href="{% static 'assets/css/demo.css' %}"/>
+
+    <!-- Vendors CSS -->
+    <link rel="stylesheet" href="{% static 'assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css' %}"/>
+
+    <link rel="stylesheet"
+          href="{% static 'assets/vendor/libs/select2-bootstrap4-theme/dist/select2-bootstrap4.css' %}">
+
+
+    <link rel="stylesheet"
+          href="{% static 'assets/vendor/libs/select2-bootstrap4-theme/dist/select2-bootstrap4.css' %}">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css"
+          integrity="sha256-FdatTf20PQr/rWg+cAKfl6j4/IY3oohFAJ7gVC3M34E=" crossorigin="anonymous">
+    <!-- Page CSS -->
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/alertify.min.css"/>
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/themes/bootstrap.min.css"/>
+    <link rel="stylesheet"
+          href="{% static 'assets/vendor/libs/tokenfield-bootstrap/dist/css/bootstrap-tokenfield.css' %}"/>
+    <link rel="stylesheet"
+          href="{% static 'assets/vendor/libs/tokenfield-bootstrap/dist/css/tokenfield-typeahead.css' %}"/>
+    <!-- Helpers -->
+    <script src="{% static 'assets/vendor/js/helpers.js' %}"></script>
+
+    <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
+    <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
+    <script src="{% static 'assets/js/config.js' %}"></script>
+
+
+</head>
+
+<body>
+<!-- Layout wrapper -->
+<div class="layout-wrapper layout-content-navbar">
+    <div class="layout-container">
+        <!-- Menu -->
+
+        <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+            <div class="app-brand demo">
+                <a href="http://127.0.0.1:8000/noxus/laboratorios" class="app-brand-link">
+                    <span class="app-brand-text demo menu-text fw-bolder ms-2">NOXUS</span>
+                </a>
+
+                <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
+                    <i class="bx bx-chevron-left bx-sm align-middle"></i>
+                </a>
+            </div>
+
+            <div class="menu-inner-shadow"></div>
+
+            <ul class="menu-inner py-1" id="menu">
+            </ul>
+        </aside>
+        <!-- / Menu -->
+
+        <!-- Layout container -->
+        <div class="layout-page">
+            <!-- Navbar -->
+            <nav
+                class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
+                id="layout-navbar">
+                <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
+                    <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
+                        <i class="bx bx-menu bx-sm"></i>
+                    </a>
+                </div>
+
+                <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
+                    <ul class="navbar-nav flex-row align-items-center ms-auto">
+                        <!-- Place this tag where you want the button to render. -->
+                        <li class="nav-item lh-1 me-3">
+                            <span></span>
+                        </li>
+
+                        <!-- User -->
+                        <li class="nav-item navbar-dropdown dropdown-user dropdown">
+                            <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);"
+                               data-bs-toggle="dropdown">
+                                <div class="avatar avatar-online">
+                                    <div class="h-auto rounded-circle">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45"
+                                             viewBox="0 0 24 24" style="fill: #afafaf;">
+                                            <path
+                                                d="M12 2C6.579 2 2 6.579 2 12s4.579 10 10 10 10-4.579 10-10S17.421 2 12 2zm0 5c1.727 0 3 1.272 3 3s-1.273 3-3 3c-1.726 0-3-1.272-3-3s1.274-3 3-3zm-5.106 9.772c.897-1.32 2.393-2.2 4.106-2.2h2c1.714 0 3.209.88 4.106 2.2C15.828 18.14 14.015 19 12 19s-3.828-.86-5.106-2.228z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+
+                                <li>
+                                    <a class="dropdown-item" href="#">
+                                        <div class="d-flex">
+                                            <div class="flex-shrink-0 me-3">
+                                                <div class="avatar avatar-online">
+                                                    <div class="h-auto rounded-circle">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45"
+                                                             viewBox="0 0 24 24" style="fill: #afafaf;">
+                                                            <path
+                                                                d="M12 2C6.579 2 2 6.579 2 12s4.579 10 10 10 10-4.579 10-10S17.421 2 12 2zm0 5c1.727 0 3 1.272 3 3s-1.273 3-3 3c-1.726 0-3-1.272-3-3s1.274-3 3-3zm-5.106 9.772c.897-1.32 2.393-2.2 4.106-2.2h2c1.714 0 3.209.88 4.106 2.2C15.828 18.14 14.015 19 12 19s-3.828-.86-5.106-2.228z"></path>
+                                                        </svg>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <span
+                                                    class="fw-semibold d-block">{{ user.first_name|add:" "|add:user.last_name }}</span>
+                                                <small class="fw-semibold ">{{ user.username }}</small>
+                                                <small class="text-muted"> - Admin</small>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <div class="dropdown-divider"></div>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="#">
+                                        <i class="bx bx-user me-2"></i>
+                                        <span class="align-middle">Meu perfil</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <div class="dropdown-divider"></div>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'login' %}">
+                                        <i class="bx bx-power-off me-2"></i>
+                                        <span class="align-middle">Sair</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <!--/ User -->
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- / Navbar -->
+            <div class="container-xxl flex-grow-1 container-p-y">
+                <!-- Content wrapper -->
+
+                <div class="content-wrapper">
+                    <!-- Content -->
+                    <div class="row py-4">
+                        <div class="col-md-10 ">
+                            <h4 class="fw-bold py-3 mb-4">
+                                <span class="text-muted fw-light">Laboratórios /  </span>Reservar
+                            </h4>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+
+                            <div class="card mb-4">
+
+                                <div class="card-header">
+                                    <h4 class="card-title">{{ laboratorio.nomeLaboratorio }}</h4>
+                                </div>
+
+                                <div class="card-body">
+                                    <div class="row">
+                                        <input type="hidden" class="dadoEnviar" name="id" value="{{ laboratorio.id }}">
+                                        <div class="col-md-5">
+                                            <label for="dtAgendamento" class="form-label">Data</label>
+                                            <input class="form-control dadoEnviar" type="date" value="" name="data"
+                                                   id="dtAgendamento" onblur="obterHorariosAgendados(this.value)">
+                                            <div id="ajudaData" class="form-text">
+                                                Data para pretetida para o agendamento
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="dtAgendamento" class="form-label">Entrada</label>
+                                            <input class="form-control" type="time" id="horaInicio" name="horaInicio" onblur="verificaData(this,'dtAgendamento')">
+                                            <div id="ajudaData" class="form-text">
+                                                Horário de entrada no laboratório
+                                            </div>
+
+                                        </div>
+                                        <div class="col-md-1 pt-4">
+                                            <p class="mb-0 text-center pt-3">Até</p>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <label for="horaTermino" class="form-label">Saída</label>
+                                            <input class="form-control" type="time" id="horaTermino" name="horaTermino" onblur="verificaData(this,'dtAgendamento')">
+                                            <div id="ajudaData" class="form-text">
+                                                Horário de saída do laboratório
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="row my-2">
+                                        <div class="col-md-12">
+                                            <label for="horariosReservados" class="form-label">Horários
+                                                reservados</label>
+                                            <input type="text" class="form-control" name="horariosReservados" id="horariosReservados" disabled/>
+                                            <div id="ajudaData" class="form-text">
+                                                Horário de saída do laboratório
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-5">
+                                        <div class="col-md-12">
+                                            <h5>Horarios de funcionamento</h5>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="btn-toolbar demo-inline-spacing" role="toolbar"
+                                                 aria-label="Toolbar with button groups">
+                                                <div class="btn-group" role="group" aria-label="First group">
+                                                    <button type="button"
+                                                            class="btn btn-outline-primary active diaSemana" id="Dom"
+                                                            onclick="diaSelecionado(this,'.diaSemana','#novoHorario','#horario1')">
+                                                        Dom
+                                                    </button>
+                                                    <button type="button" class="btn btn-outline-primary diaSemana"
+                                                            id="Seg"
+                                                            onclick="diaSelecionado(this,'.diaSemana','#novoHorario','#horario1')">
+                                                        Seg
+                                                    </button>
+                                                    <button type="button" class="btn btn-outline-primary diaSemana"
+                                                            id="Ter"
+                                                            onclick="diaSelecionado(this,'.diaSemana','#novoHorario','#horario1')">
+                                                        Ter
+                                                    </button>
+                                                    <button type="button" class="btn btn-outline-primary diaSemana"
+                                                            id="Qua"
+                                                            onclick="diaSelecionado(this,'.diaSemana','#novoHorario','#horario1')">
+                                                        Qua
+                                                    </button>
+                                                    <button type="button" class="btn btn-outline-primary diaSemana"
+                                                            id="Qui"
+                                                            onclick="diaSelecionado(this,'.diaSemana','#novoHorario','#horario1')">
+                                                        Qui
+                                                    </button>
+                                                    <button type="button" class="btn btn-outline-primary diaSemana"
+                                                            id="Sex"
+                                                            onclick="diaSelecionado(this,'.diaSemana','#novoHorario','#horario1')">
+                                                        Sex
+                                                    </button>
+                                                    <button type="button" class="btn btn-outline-primary diaSemana"
+                                                            id="Sab"
+                                                            onclick="diaSelecionado(this,'.diaSemana','#novoHorario','#horario1')">
+                                                        Sáb
+                                                    </button>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label for="horario1" class="form-label">
+                                                Abetura
+                                            </label>
+                                            <input type="time" class="form-control horarios"
+                                                   onkeydown="this.classList.remove('has-error')"
+                                                   title="Horário do laboratório" id="horario1" placeholder="Horário"
+                                                   aria-describedby="Horário do laboratório"
+                                                   readonly>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div id="novoHorario">
+
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div id="horario1Ajuda" class="form-text">
+                                                Horário de funcionamento do laboratório
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-5">
+                                        <div class="col-md-12">
+                                            <button class="btn btn-success pull-right" type="button">
+                                                <i class="bx bxs-save"></i>
+                                                Salvar
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+                <div class="" id="notificacao"></div>
+            </div>
+            <!-- / Content -->
+
+            <!-- Footer -->
+            <footer class="content-footer footer bg-footer-theme  bg-light">
+                <div class="container-xxl d-flex flex-wrap justify-content-between py-2 flex-md-row flex-column">
+                    <div class="mb-2 mb-md-0">
+                        ©
+                        <script>
+                            document.write(new Date().getFullYear());
+                        </script>
+                        Noxus
+
+                    </div>
+                    <a href="https://themeselection.com/" target="_blank">ThemeSelection</a>
+                </div>
+            </footer>
+            <!-- / Footer -->
+
+            <div class="content-backdrop fade"></div>
+        </div>
+        <!-- Content wrapper -->
+    </div>
+    <!-- / Layout page -->
+</div>
+
+<!-- Overlay -->
+<div class="layout-overlay layout-menu-toggle"></div>
+
+<script src="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/alertify.min.js"></script>
+
+
+<!-- / Layout wrapper -->
+
+<!-- Core JS -->
+<!-- build:js assets/vendor/js/core.js -->
+<script src="{% static 'assets/vendor/libs/jquery/jquery.js' %}"></script>
+<script src="{% static 'assets/vendor/libs/popper/popper.js' %}"></script>
+<script src="{% static 'assets/vendor/js/bootstrap.js' %}"></script>
+<script src="{% static 'assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js' %}"></script>
+
+<script src="{% static 'assets/vendor/js/menu.js' %}"></script>
+<script src="{% static 'assets/vendor/js/validadores.js' %}"></script>
+<script src="{% static 'assets/vendor/js/toast.js' %}"></script>
+<script src="{% static 'assets/vendor/js/requisicao.js' %}"></script>
+<script src="{% static 'assets/vendor/js/menus.js' %}"></script>
+<script src="{% static 'assets/vendor/js/modal.js' %}"></script>
+<script src="{% static 'assets/vendor/libs/tokenfield-bootstrap/dist/bootstrap-tokenfield.js' %}"></script>
+<!-- endbuild -->
+
+<!-- Main JS -->
+<script src="{% static 'assets/js/main.js' %}"></script>
+
+<!-- Place this tag in your head or just before your close body tag. -->
+<script async defer src="https://buttons.github.io/buttons.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"
+        integrity="sha256-AFAYEOkzB6iIKnTYZOdUf9FFje6lOTYdwRJKwTN5mks=" crossorigin="anonymous"></script>
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
+
+<script>
+    window.onload = async () => {
+        menus("#menu")
+
+        $("#horariosReservados").tokenfield({
+            showAutocompleteOnFocus: true
+        })
+        await obterHorariosDisponiveis({{laboratorio.id }})
+        document.querySelector("#Dom").click()
+    }
+
+    const verificaData = (hora, dataAgedamento) => {
+        if(dataAgedamento.value > 0){
+            let dataPretedente = dataAgedamento.value.split("-")
+            let horaPretendida = hora.value.split(":")
+            let dataSelecionada = new Date(dataPretedente[0],dataPretedente[1] -1, dataPretedente[2], horaPretendida[0], horaPretendida[1])
+            let diasDisponiveis = JSON.parse(sessionStorage.getItem("diasDisponiveis"))
+            let diaSemanaPretendido = diasDisponiveis[Object.keys(diasDisponiveis[dataSelecionada.getDay()])]
+            let horaInicioLaboratorio = diaSemanaPretendido[0].split(":")
+            let horaTerminoLaboratorio = diaSemanaPretendido[1].split(":")
+            let dataLaboratorioInicio = new Date(dataPretedente[0],dataPretedente[1] -1, dataPretedente[2], horaInicioLaboratorio[0], horaInicioLaboratorio[1])
+            let dataLaboratorioTermino = new Date(dataPretedente[0],dataPretedente[1] -1, dataPretedente[2], horaTerminoLaboratorio[0], horaTerminoLaboratorio[1])
+
+            if (dataSelecionada.getTime() >= dataLaboratorioInicio.getTime() && dataSelecionada.getTime() <= dataLaboratorioTermino.getTime()) {
+                return true
+            }else{
+                data.classList.add("has-error")
+                document.querySelector("#notificacao").innerHTML =
+                    toastr({
+                        theme: "warning",
+                        title: "Horário fora do range",
+                        message: `Verifique o horário`
+                    })
+
+                $('#toast').toast('show')
+                return false
+            }
+        }else{
+             document.querySelector("#notificacao").innerHTML =
+                    toastr({
+                        theme: "warning",
+                        title: "Digite a data pretendida",
+                        message: ``
+                    })
+
+            $('#toast').toast('show')
+        }
+    }
+
+    const obterHorariosDisponiveis = async (id = 0) => {
+        let resultado = {
+            horarios: {
+                "Dom": ["", ""],
+                "Seg": ["", ""],
+                "Ter": ["", ""],
+                "Qua": ["", ""],
+                "Qui": ["", ""],
+                "Sex": ["", ""],
+                "Sab": ["", ""]
+            }
+        }
+
+        if (id !== 0) {
+            const requisicao = await realizarRequisicao({
+                origemRequisicao: `${location.origin}/noxus/obterhorarios/${id}/`,
+                tipoRequisicao: "GET"
+            })
+
+            resultado = await requisicao.json()
+        }
+        sessionStorage.setItem("diasDisponiveis", JSON.stringify(resultado.horarios))
+    }
+
+
+    let idHorario = 1
+
+    const obterNovoHorario = () => {
+        idHorario++
+
+        return `<div class="row">
+          <div class="col-md-6">
+            <label for="horario${idHorario}" class="form-label">
+              Fechamento
+            </label>
+            <input type="time" class="form-control horarios" title="Horário ${idHorario}" id="horario${idHorario}" placeholder="Horário" aria-describedby="horario${idHorario}" readonly>
+          </div>
+        </div>`
+    }
+
+    async function obterHorariosAgendados(data) {
+        let dadosEnvio = construirDados(".dadoEnviar")
+        let requisicao = await realizarRequisicao({
+            origemRequisicao: "{% url 'obterhorariosreservados' %}",
+            conteudoRequisicao: dadosEnvio,
+            tipoRequisicao: "POST"
+        })
+
+        let resultado = await requisicao.json()
+        let usuarios = [{
+            value: "Não possui agendamentos para essa data",
+            label: "Não possui agendamentos para essa data"
+        }]
+
+        if (resultado.agendamentos.length > 0) {
+            usuarios = resultado.agendamentos.map(agendamento => {
+                return {
+                    value: `${agendamento.horarioInicio} - ${agendamento.horarioTermino}: ${agendamento.usuario} - ${agendamento.email}`,
+                    label: `${agendamento.horarioInicio} - ${agendamento.horarioTermino}: ${agendamento.usuario} - ${agendamento.email}`
+                }
+            })
+
+        }
+        $("#horariosReservados").tokenfield('setTokens', usuarios)
+
+    }
+
+    const diaSelecionado = (dia, semana, horario, primeiroHorario) => {
+        document.querySelectorAll(semana).forEach(el => {
+            el.classList.remove("active")
+        })
+        dia.classList.add("active")
+        document.querySelector(horario).innerHTML = ""
+        document.querySelector(primeiroHorario).value = ""
+
+        let diasDisponiveis = JSON.parse(sessionStorage.getItem("diasDisponiveis"))
+        let diaSelecinadoAux = diasDisponiveis[obterDiaSelecionado()]
+        if (diaSelecinadoAux.length > 0) {
+            let camposDisponiveis = document.querySelectorAll(".horarios")
+            let parse = new DOMParser()
+            while (camposDisponiveis.length < diaSelecinadoAux.length) {
+                let conteudo = parse.parseFromString(obterNovoHorario(), "text/html")
+                document.querySelector("#novoHorario").appendChild(conteudo.body.childNodes[0])
+                camposDisponiveis = document.querySelectorAll(".horarios")
+            }
+
+            diaSelecinadoAux.forEach(valor => {
+                let i = 0
+                while (i <= camposDisponiveis.length) {
+                    if (camposDisponiveis[i].value.trim() == "") {
+                        camposDisponiveis[i].value = valor
+                        break
+                    }
+                    i++
+                }
+
+            })
+        }
+    }
+
+    function obterDiaSelecionado() {
+        let retorno
+        document.querySelectorAll(".diaSemana").forEach(el => {
+            if (el.classList.contains("active")) {
+                retorno = el.id
+            }
+        })
+        return retorno
+    }
+
+    function removerHorario(horario) {
+        let diasDisponiveis = JSON.parse(sessionStorage.getItem("diasDisponiveis"))
+        let horarios = diasDisponiveis[obterDiaSelecionado()]
+        diasDisponiveis[obterDiaSelecionado()] = horarios
+        let repeticoes = diasDisponiveis[obterDiaSelecionado()].toSorted().filter(el => el == horario.value).length
+        if (repeticoes > 1) {
+            horarios = horarios.filter(el => el != horario.value)
+            horarios.push(horario.value)
+            diasDisponiveis[obterDiaSelecionado()] = horarios
+            sessionStorage.setItem("diasDisponiveis", JSON.stringify(diasDisponiveis))
+            horario.parentNode.parentNode.outerHTML = ""
+        }
+
+    }
+
+    function adicionarHorario(horario, tipo) {
+        let diasDisponiveis = JSON.parse(sessionStorage.getItem("diasDisponiveis"))
+        let horarios = diasDisponiveis[obterDiaSelecionado()]
+        if (horarios.includes(horario.value) || horario.value.trim() == "") {
+            horario.classList.add("has-error")
+            document.querySelector("#notificacao").innerHTML =
+                toastr({
+                    theme: "warning",
+                    title: "Horário existênte",
+                    message: `Já existe esse horário lançado, verifique !`
+                })
+
+            $('#toast').toast('show')
+            return false
+        }
+
+        horarios[tipo] = horario.value.trim()
+        diasDisponiveis[obterDiaSelecionado()] = horarios
+        sessionStorage.setItem("diasDisponiveis", JSON.stringify(diasDisponiveis))
+
+    }
+
+</script>
+</body>
+</html>

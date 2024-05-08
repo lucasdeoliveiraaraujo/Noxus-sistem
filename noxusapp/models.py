@@ -20,7 +20,7 @@ class LaboratorioDisponibilidade(models.Model):
 class LaboratorioAgendamento(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True)
     laboratorios = models.ForeignKey(Laboratorios, on_delete=models.CASCADE, blank=True, null=True)
-    diaSemana = models.CharField(max_length=3, default=None, null=True, blank=True)
+    data = models.DateField(blank=True, null=True)
     horaInicio = models.TimeField(auto_now=False, null=True, blank=True)
     horaTermino = models.TimeField(auto_now=False, null=True, blank=True)
 

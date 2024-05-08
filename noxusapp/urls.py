@@ -17,11 +17,13 @@ urlpatterns = [
     path("categorias/", views.categorias, name="categorias"),
     path("obterhorarios/<int:id>/", views.obterlaboratorio, name="obterhorarios"),
     path("usuarios/<int:id>/", views.usuarios, name="usuarios"),
-    path("usuarios/$", views.usuarios, name="usuarios"),
+    path("usuarios/", views.usuarios, name="usuarios", kwargs={'id': None},),
     path("addusuario/", views.addusuario, name="addusuario"),
     path("configuracoes/", views.configuracoes, name="configuracoes"),
     path("controleconfiguracao/<int:id>/", views.salvarconfiguracao, name="controleconfiguracao"),
     path("pesquisarlaboratorio/", views.pesquisarlaboratorio, name="pesquisarlaboratorio"),
+    path("reservarlaboratorio/<int:id>/", views.reservarlaboratorio, name="reservarlaboratorio"),
+    path("obterhorariosreservados/", views.obterhorariosreservados, name="obterhorariosreservados"),
 ]
 
 
