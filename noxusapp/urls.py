@@ -24,6 +24,7 @@ urlpatterns = [
     path("pesquisarlaboratorio/", views.pesquisarlaboratorio, name="pesquisarlaboratorio"),
     path("reservarlaboratorio/<int:id>/", views.reservarlaboratorio, name="reservarlaboratorio"),
     path("obterhorariosreservados/", views.obterhorariosreservados, name="obterhorariosreservados"),
+    path("addreserva/", views.addreserva, name="addreserva")
 ]
 
 

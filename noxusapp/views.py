@@ -276,7 +276,6 @@ def pesquisarlaboratorio(request):
 @login_required
 def reservarlaboratorio(request, id:int):
     laboratorio = Laboratorios.objects.values().get(id=id)
-    print(laboratorio)
     return render(request, "noxusapp/reservarlaboratorio.html", context={"laboratorio": laboratorio})
 
 @login_required
@@ -305,3 +304,13 @@ def obterhorariosreservados(request):
     except LaboratorioAgendamento.DoesNotExist:
         return HttpResponse(json.dumps(jsonenvio))
     return HttpResponse(json.dumps(jsonenvio))
+
+@login_required
+@csrf_exempt
+def addreserva(request):
+    dados = json.loads(request.body)
+    # try:
+    #     #horarioreservado = LaboratorioAgendamento.objects.get(id=dados["id"]).objects.filter(dia=databusca)
+    # except LaboratorioAgendamento.DoesNotExist:
+    #     return HttpResponse("")
+    return HttpResponse("")
