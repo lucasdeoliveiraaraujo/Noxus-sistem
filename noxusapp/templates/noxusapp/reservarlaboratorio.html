@@ -92,7 +92,7 @@
 
         <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
             <div class="app-brand demo">
-                <a href="http://127.0.0.1:8000/noxus/laboratorios" class="app-brand-link">
+                <a href="noxus/laboratorios" class="app-brand-link">
                     <span class="app-brand-text demo menu-text fw-bolder ms-2">NOXUS</span>
                 </a>
 
@@ -216,18 +216,36 @@
 
                                 <div class="card-body">
                                     <div class="row">
-                                        <input type="hidden" class="dadoEnviar" name="id" value="{{ laboratorio.id }}">
+                                        {% if reserva != None %}
+                                            <input type="hidden" class="dadoEnviar dadosEnviarSalvar" name="id"
+                                                   value="{{ laboratorio.id }}">
+
+                                            <input type="hidden" class="dadoEnviar dadosEnviarSalvar"
+                                                   name="idAgendamento"
+                                                   value="{{ reserva.id }}">
+                                        {% else %}
+                                            <input type="hidden" class="dadoEnviar dadosEnviarSalvar" name="id"
+                                                   value="{{ laboratorio.id }}"/>
+                                        {% endif %}
                                         <div class="col-md-5">
                                             <label for="dtAgendamento" class="form-label">Data</label>
-                                            <input class="form-control dadoEnviar dadosEnviarSalvar" type="date" value="" name="data"
-                                                   id="dtAgendamento" onblur="obterHorariosAgendados(this)">
+                                            <input class="form-control dadoEnviar dadosEnviarSalvar" type="date"
+                                                   title="Data de agendamento" name="data"
+                                                   id="dtAgendamento" onblur="obterHorariosAgendados(this)"
+                                                   value="{{ reserva.data }}"
+                                            >
                                             <div id="ajudaData" class="form-text">
                                                 Data para pretetida para o agendamento
                                             </div>
                                         </div>
                                         <div class="col-md-3">
                                             <label for="horaInicio" class="form-label">Entrada</label>
-                                            <input class="form-control dadosEnviarSalvar" onkeydown="this.classList.remove('has-error')" type="time" id="horaInicio" name="horaInicio" onblur="verificaData(this.id,'dtAgendamento')">
+                                            <input class="form-control dadosEnviarSalvar" title="o Horário de entrada"
+                                                   onkeydown="this.classList.remove('has-error')" type="time"
+                                                   id="horaInicio" name="horaInicio"
+                                                   onblur="verificaData(this.id,'dtAgendamento')"
+                                                   value="{{ reserva.horaInicio }}"
+                                            >
                                             <div id="ajudaData" class="form-text">
                                                 Horário de entrada no laboratório
                                             </div>
@@ -239,7 +257,11 @@
 
                                         <div class="col-md-3">
                                             <label for="horaTermino" class="form-label">Saída</label>
-                                            <input class="form-control dadosEnviarSalvar" onkeydown="this.classList.remove('has-error')" type="time" id="horaTermino" name="horaTermino" onblur="verificaData(this.id,'dtAgendamento')">
+                                            <input class="form-control dadosEnviarSalvar" title="o Horário de término"
+                                                   onkeydown="this.classList.remove('has-error')" type="time"
+                                                   id="horaTermino" name="horaTermino"
+                                                   onblur="verificaData(this.id,'dtAgendamento')"
+                                                   value="{{ reserva.horaTermino }}">
                                             <div id="ajudaData" class="form-text">
                                                 Horário de saída do laboratório
                                             </div>
@@ -250,7 +272,9 @@
                                         <div class="col-md-12">
                                             <label for="horariosReservados" class="form-label">Horários
                                                 reservados</label>
-                                            <input type="text" class="form-control" onkeydown="this.classList.remove('has-error')" name="horariosReservados" id="horariosReservados" disabled/>
+                                            <input type="text" class="form-control"
+                                                   onkeydown="this.classList.remove('has-error')"
+                                                   name="horariosReservados" id="horariosReservados" disabled/>
                                             <div id="ajudaData" class="form-text">
                                                 Horário de saída do laboratório
                                             </div>
@@ -333,7 +357,8 @@
                                     </div>
                                     <div class="row mt-5">
                                         <div class="col-md-12">
-                                            <button class="btn btn-success pull-right" type="button" onclick="gravarReserva()">
+                                            <button class="btn btn-success pull-right" type="button"
+                                                    onclick="gravarReserva({% if reserva != None %}'PUT'{% else %}'POST'{% endif %})">
                                                 <i class="bx bxs-save"></i>
                                                 Salvar
                                             </button>
@@ -348,7 +373,7 @@
                     </div>
 
                 </div>
-                <div class="" id="notificacao"></div>
+                <div id="notificacao"></div>
             </div>
             <!-- / Content -->
 
@@ -411,71 +436,113 @@
 <script>
     window.onload = async () => {
         await menus("#menu")
-
+        sessionStorage.clear()
         $("#horariosReservados").tokenfield({
             showAutocompleteOnFocus: true
         })
         await obterHorariosDisponiveis({{laboratorio.id }})
 
-
+        obterHorariosAgendados(document.querySelector("#dtAgendamento"))
         document.querySelector("#Dom").click()
 
     }
 
-    const gravarReserva = async () =>{
-        let dadosEnvio = construirDados(".dadosEnviarSalvar")
-        let requisicao = await realizarRequisicao({
-            tipoRequisicao:"POST",
-            conteudoRequisicao: dadosEnvio,
-            origemRequisicao: "{% url 'addreserva' %}"
-        })
+    const gravarReserva = async (tipo) => {
 
-        let resultado = await requisicao.json()
-        document.querySelector("#notificacao").innerHTML =
-            toastr({
-                theme: resultado.tipo,
-                title: resultado.titulo,
-                message: resultado.mensagem
+        let campos = entradaTextoValidar(document.querySelectorAll(".dadosEnviarSalvar"))
+        if (campos.length === 0) {
+            let dadosEnvio = construirDados(".dadosEnviarSalvar")
+            let requisicao = await realizarRequisicao({
+                tipoRequisicao: tipo,
+                conteudoRequisicao: dadosEnvio,
+                origemRequisicao: "{% url 'addreserva' %}"
             })
 
-        $('#toast').toast('show')
+            let resultado = await requisicao.json()
+            document.querySelector("#notificacao").innerHTML =
+                toastr({
+                    theme: resultado.tipo,
+                    title: resultado.titulo,
+                    message: resultado.mensagem
+                })
+
+            $('#toast').toast('show')
+        } else {
+            let elementos = campos.map(el => {
+                el.campo.classList.add("has-error")
+                return el.descricao
+            }).join(",")
+            elementos = elementos.substring(0, elementos.lastIndexOf(",")) + " e " + elementos.substring(elementos.lastIndexOf(",") + 1, elementos.length)
+            document.querySelector("#notificacao").innerHTML =
+                toastr({
+                    theme: "warning",
+                    title: "Campos vazios",
+                    message: `Verifique os campos: ${elementos}`
+                })
+            $('#toast').toast('show')
+        }
+
+
     }
 
     const verificaData = (hora, dataAgedamento) => {
-        if(document.getElementById(dataAgedamento).value.length === 10){
+        if (document.getElementById(dataAgedamento).value.length === 10) {
             let dataPretedente = document.getElementById(dataAgedamento).value.split("-")
             let horaPretendida = document.getElementById(hora).value.split(":")
-            let dataSelecionada = new Date(dataPretedente[0],dataPretedente[1] -1, dataPretedente[2], horaPretendida[0], horaPretendida[1])
+            let dataSelecionada = new Date(dataPretedente[0], dataPretedente[1] - 1, dataPretedente[2], horaPretendida[0], horaPretendida[1])
             let diasDisponiveis = JSON.parse(sessionStorage.getItem("diasDisponiveis"))
             let diaSemanaPretendido = diasDisponiveis[Object.keys(diasDisponiveis)[dataSelecionada.getDay()]]
             document.getElementById(`${Object.keys(diasDisponiveis)[dataSelecionada.getDay()]}`).click()
             let horaInicioLaboratorio = diaSemanaPretendido[0].split(":")
             let horaTerminoLaboratorio = diaSemanaPretendido[1].split(":")
-            let dataLaboratorioInicio = new Date(dataPretedente[0],dataPretedente[1] -1, dataPretedente[2], horaInicioLaboratorio[0], horaInicioLaboratorio[1])
-            let dataLaboratorioTermino = new Date(dataPretedente[0],dataPretedente[1] -1, dataPretedente[2], horaTerminoLaboratorio[0], horaTerminoLaboratorio[1])
-
+            let dataLaboratorioInicio = new Date(dataPretedente[0], dataPretedente[1] - 1, dataPretedente[2], horaInicioLaboratorio[0], horaInicioLaboratorio[1])
+            let dataLaboratorioTermino = new Date(dataPretedente[0], dataPretedente[1] - 1, dataPretedente[2], horaTerminoLaboratorio[0], horaTerminoLaboratorio[1])
+            let mensagem = {theme: "warning", title: "Horário fora do range", message: "Verifique o horário"}
             if (dataSelecionada.getTime() >= dataLaboratorioInicio.getTime() && dataSelecionada.getTime() <= dataLaboratorioTermino.getTime()) {
                 document.getElementById(hora).classList.remove("has-error")
-                return true
-            }else{
-                document.getElementById(hora).classList.add("has-error")
-                document.querySelector("#notificacao").innerHTML =
-                    toastr({
-                        theme: "warning",
-                        title: "Horário fora do range",
-                        message: `Verifique o horário`
+
+                let agendamento = JSON.parse(sessionStorage.getItem("horariosReservados")) ?? []
+
+                if (agendamento.length > 0) {
+                    let validacao = []
+                    agendamento.filter(horario => {
+                        let inicio = horario.agendado[0].split(":")
+                        let termino = horario.agendado[1].split(":")
+                        let dataAgendamentoInicio = new Date(dataPretedente[0], dataPretedente[1] - 1, dataPretedente[2], inicio[0], inicio[1])
+                        let dataAgendamentoTermino = new Date(dataPretedente[0], dataPretedente[1] - 1, dataPretedente[2], termino[0], termino[1])
+                        if (dataSelecionada.getTime() >= dataAgendamentoInicio.getTime() && dataSelecionada.getTime() <= dataAgendamentoTermino.getTime()) {
+                            validacao.push(horario.usuario)
+                        }
                     })
+                    if (validacao.length > 0) {
+                        mensagem.title = "Horário reservado"
+                        mensagem.message = `Verifique o horário reservado: ${validacao.join(" ")}`
+                        document.getElementById(hora).value = ""
+                        document.getElementById(hora).classList.add("has-error")
+                        document.querySelector("#notificacao").innerHTML = toastr(mensagem)
+
+                        $('#toast').toast('show')
+                        return false
+                    }
+                }
+                return true
+            } else {
+
+
+                document.getElementById(hora).value = ""
+                document.getElementById(hora).classList.add("has-error")
+                document.querySelector("#notificacao").innerHTML = toastr(mensagem)
 
                 $('#toast').toast('show')
                 return false
             }
-        }else{
-             document.querySelector("#notificacao").innerHTML =
-                    toastr({
-                        theme: "warning",
-                        title: "Digite a data pretendida",
-                        message: ``
-                    })
+        } else {
+            document.querySelector("#notificacao").innerHTML =
+                toastr({
+                    theme: "warning",
+                    title: "Digite a data pretendida",
+                    message: ``
+                })
 
             $('#toast').toast('show')
         }
@@ -522,12 +589,12 @@
     }
 
     async function obterHorariosAgendados(data) {
-        if(data.value.length > 0 && data.value.length === 10){
+        if (data.value.length > 0 && data.value.length === 10) {
             let dataPretedente = data.value.split("-")
-            let dataSelecionada = new Date(dataPretedente[0],dataPretedente[1] -1, dataPretedente[2])
+            let dataSelecionada = new Date(dataPretedente[0], dataPretedente[1] - 1, dataPretedente[2])
             let diasDisponiveis = JSON.parse(sessionStorage.getItem("diasDisponiveis"))
             document.querySelector(`#${Object.keys(diasDisponiveis)[dataSelecionada.getDay()]}`).click()
-            if(diasDisponiveis[Object.keys(diasDisponiveis)[dataSelecionada.getDay()]][0].trim() === ""){
+            if (diasDisponiveis[Object.keys(diasDisponiveis)[dataSelecionada.getDay()]][0].trim() === "") {
                 data.classList.add("has-error")
                 document.querySelector("#notificacao").innerHTML =
                     toastr({
@@ -553,13 +620,19 @@
             }]
 
             if (resultado.agendamentos.length > 0) {
+                let horariosReservados = []
                 usuarios = resultado.agendamentos.map(agendamento => {
+                    horariosReservados.push({
+                        agendado: [agendamento.horarioInicio, agendamento.horarioTermino],
+                        usuario: agendamento.usuario
+                    })
                     return {
                         value: `${agendamento.horarioInicio} - ${agendamento.horarioTermino}: ${agendamento.usuario} - ${agendamento.email}`,
                         label: `${agendamento.horarioInicio} - ${agendamento.horarioTermino}: ${agendamento.usuario} - ${agendamento.email}`
                     }
                 })
 
+                sessionStorage.setItem("horariosReservados", JSON.stringify(horariosReservados))
             }
             $("#horariosReservados").tokenfield('setTokens', usuarios)
         }

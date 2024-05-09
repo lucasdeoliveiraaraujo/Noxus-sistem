@@ -87,7 +87,7 @@
 
         <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
             <div class="app-brand demo">
-                <a href="http://127.0.0.1:8000/noxus/laboratorios" class="app-brand-link">
+                <a href="noxus/laboratorios" class="app-brand-link">
                     <span class="app-brand-text demo menu-text fw-bolder ms-2">NOXUS</span>
                 </a>
 
@@ -256,9 +256,40 @@
     <!-- / Layout page -->
 </div>
 
+
 <!-- Overlay -->
 <div class="layout-overlay layout-menu-toggle"></div>
+<div class="modal fade show" id="mdlAgendamento" tabindex="-1" style="display: none;" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detalhes do agendamento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body table-responsive text-nowrap" id="detalhe">
+            </div>
+            <div class="modal-footer">
 
+                <button type="button" class="btn btn-danger" onclick="apagarAgendamento(document.querySelector('#id').value)">
+                    <i class="bx bx-trash"></i>
+                    Apagar
+                </button>
+                <button type="button" class="btn btn-primary" onclick="location.href =  `/noxus/editaragendamento/${document.querySelector('#id').value}/`">
+                    <i class='bx bxs-edit'></i>
+                    Editar
+                </button>
+
+
+                <button type="button" class="btn btn-secondary " data-bs-dismiss="modal">
+                    <i class='bx bx-window-close' ></i>
+                    Fechar
+                </button>
+
+
+            </div>
+        </div>
+    </div>
+</div>
 <script src="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/alertify.min.js"></script>
 
 
@@ -278,6 +309,7 @@
 <script src="{% static 'assets/vendor/js/requisicao.js' %}"></script>
 <script src="{% static 'assets/vendor/js/menus.js' %}"></script>
 <script src="{% static 'assets/vendor/js/modal.js' %}"></script>
+<script src="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/alertify.min.js"></script>
 <!-- endbuild -->
 
 <!-- Main JS -->
@@ -291,20 +323,22 @@
 <script>
     window.onload = async () => {
         menus("#menu")
+
     }
 
-    document.addEventListener('DOMContentLoaded', function () {
-        var calendarEl = document.getElementById('calendar');
-
-
-        var calendar = new FullCalendar.Calendar(calendarEl, {
-            events: [
-                {
-                  title: 'My Event',
-                  start: '2024-05-06',
-                  url: 'https://google.com/'
-                }
-            ],
+    document.addEventListener('DOMContentLoaded', async function () {
+        let requisicao = await realizarRequisicao({
+            origemRequisicao: "{% url 'obteragendamentos' %}",
+            conteudoRequisicao: {},
+            tipoRequisicao: "POST"
+        })
+        let resultado = await requisicao.json()
+        let horarios = resultado.horarios.map(e => {
+            return e.agendamentos
+        })
+        let calendarEl = document.getElementById('calendar');
+        let calendar = new FullCalendar.Calendar(calendarEl, {
+            events: horarios,
             initialView: 'timeGridWeek',
             selectable: true,
             themeSystem: 'bootstrap5',
@@ -316,16 +350,104 @@
                 end: 'prev,next'
             },
             eventClick: function (info) {
-                alert('Event: ' + info.event.title);
-                alert('Coordinates: ' + info.jsEvent.pageX + ',' + info.jsEvent.pageY);
-                alert('View: ' + info.view.type);
+                let id = info.event.id.split("|")
+                bterDetalhesAgendamento(id[0],id[1])
+                {#alert('Event: ' + );#}
+                {#alert('Coordinates: ' + info.jsEvent.pageX + ',' + info.jsEvent.pageY);#}
+                {#alert('View: ' + info.view.type);#}
 
                 // change the border color just for fun
-                info.el.style.borderColor = 'red';
+                //info.el.style.borderColor = 'red';
             }
         });
         calendar.render();
     });
+
+    async function apagarAgendamento(id){
+        alertify.defaults.glossary.title = "Confirmar ação"
+        alertify.defaults.glossary.ok = "Sim"
+        alertify.defaults.glossary.cancel = "Não"
+        alertify.defaults.theme.input = "form-control"
+        alertify.defaults.theme.ok = "btn btn-primary"
+        alertify.defaults.theme.cancel = "btn btn-danger"
+        alertify.defaults.transition = "fade"
+
+        alertify.confirm("Deseja apagar a reserva ?", async function () {
+            let requisicao = await realizarRequisicao({
+                origemRequisicao: `{% url 'delreserva' %}` ,
+                conteudoRequisicao: {"id": id},
+                tipoRequisicao: "DEL"
+            })
+            let resultado = await requisicao.json()
+
+            document.querySelector("#notificacao").innerHTML = toastr({
+                theme: resultado.tipo,
+                title: resultado.titulo,
+                message: resultado.mensagem
+            })
+
+            $("#toast").toast("show")
+
+            $("#mdlAgendamento").modal("toggle")
+
+            setTimeout(()=>{location.reload()}, 5000)
+        })
+    }
+    async function bterDetalhesAgendamento(id,idLaboratorio) {
+        let requisicao = await realizarRequisicao({
+            tipoRequisicao: "POST",
+            conteudoRequisicao: {"id": id},
+            origemRequisicao: "{% url 'obterdetalhamentoreserva' %}"
+        })
+
+        let resultado = await requisicao.json()
+        let retorno = `
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="alert alert-warning" role="alert">Não foi encontrado os detalhes do agendamento</div>
+                </div>
+            </div>`
+        if (Object.keys(resultado).length > 0) {
+
+
+            retorno = `
+            <div class="row my-2">
+                <input type="hidden" class="dadosenviarmodal" id="idLaboratorio" value="${idLaboratorio}"/>
+                <input type="hidden" class="dadosenviarmodal" id="id" value="${id}"/>
+                <div class="col-md-5">
+                    <label for="dataAgendamento" >Data</label>
+                    <input class="form-control" type="date" value="2021-06-18" id="dataAgendamento" readonly>
+                </div>
+                <div class="col-md-3">
+                    <label for="horaInicio">Horário inicio</label>
+                    <input class="form-control" type="time" value="${resultado.horarioInicio}" id="horaInicio" readonly>
+                </div>
+                 <div class="col-md-1 pt-4">
+                    <p class="mb-0 text-center">Até</p>
+                </div>
+                <div class="col-md-3">
+                    <label for="horaTermino">Horário término</label>
+                    <input class="form-control" type="time" value="${resultado.horarioTermino}" id="horaTermino" readonly>
+                </div>
+            </div>
+            <div class="row my-2">
+                <div class="col-md-12">
+                    <label for="reserva">Reservado para:</label>
+                    <input class="form-control" value="${resultado.nome}" id="reserva" readonly />
+                </div>
+            </div>
+            <div class="row my-2">
+                <div class="col-md-12">
+                    <label for="reserva">E-mail:</label>
+                    <input class="form-control" value="${resultado.email}" id="email" readonly />
+                </div>
+            </div>`
+        }
+        document.querySelector("#mdlAgendamento #detalhe").innerHTML = retorno
+
+        $("#mdlAgendamento").modal("toggle")
+    }
+
 
 
 </script>

@@ -86,7 +86,7 @@
 
         <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
             <div class="app-brand demo">
-                <a href="http://127.0.0.1:8000/noxus/laboratorios" class="app-brand-link">
+                <a href="noxus/laboratorios" class="app-brand-link">
                     <span class="app-brand-text demo menu-text fw-bolder ms-2">NOXUS</span>
                 </a>
 
@@ -119,13 +119,15 @@
                     <div class="navbar-nav align-items-center">
                         <div class="nav-item d-flex align-items-center">
                             <i class="bx bx-search fs-4 lh-0"></i>
-                            <input class="form-control border-0 shadow-none d-none " type="datetime-local"
+                            <input class="form-control border-0 shadow-none d-none filtros" type="datetime-local"
                                    id="dataFiltro" name="pesquisa">
-                            <input type="text" class="form-control border-0 shadow-none dadosEnviar"
+                            <input type="text"
+                                   class="filtros filtro-ativo form-control border-0 shadow-none dadosEnviar"
                                    placeholder=" Pesquisar..."
                                    aria-label="Pesquisar..." id="inpPesquisa" name="pesquisa">
+                            <select class="form-select filtros d-none border-0 shadow-none" name="pesquisa"
+                                    id="selCategoria"></select>
                         </div>
-
                     </div>
                     <!-- /Search -->
 
@@ -138,6 +140,7 @@
                                     <option value="nome">Nome</option>
                                     <option value="data">Data</option>
                                     <option value="descricao">Descricao</option>
+                                    <option value="categoria">Categoria</option>
                                 </select>
                             </div>
                         </li>
@@ -185,7 +188,7 @@
                                     <div class="dropdown-divider"></div>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="#">
+                                    <a class="dropdown-item" href="{% url 'meuusuario' user.id %} ">
                                         <i class="bx bx-user me-2"></i>
                                         <span class="align-middle">Meu perfil</span>
                                     </a>
@@ -220,7 +223,7 @@
                         </div>
                         <div class="col-md-2 ">
                             <button class="btn btn-sm btn-primary pull-right"
-                                    onclick="window.location= 'http://127.0.0.1:8000/noxus/controlelaboratorio'">
+                                    onclick="window.location= '/noxus/controlelaboratorio'">
                                 Adicionar laboratório
                             </button>
                         </div>
@@ -273,7 +276,10 @@
                                         </div>
                                         <div class="row my-2">
                                             <div class="col-md-12">
-                                                <button class="btn btn-block btn-success btn-sm" onclick="location.href = '{% url 'reservarlaboratorio' %} {{laboratorio.id}}'">Reservar</button>
+                                                <button class="btn btn-block btn-success btn-sm"
+                                                        onclick="location.href = '{% url 'reservarlaboratorio' laboratorio.id %}'">
+                                                    Reservar
+                                                </button>
 
                                             </div>
                                         </div>
@@ -352,27 +358,9 @@
 <script>
     window.onload = async () => {
         menus("#menu")
+
     }
 
-    document.querySelector("#dataFiltro").addEventListener("keypress", function (event) {
-        // If the user presses the "Enter" key on the keyboard
-        if (event.key === "Enter") {
-            // Cancel the default action, if needed
-            event.preventDefault();
-            // Trigger the button element with a click
-            pesquisar()
-        }
-    })
-
-    document.querySelector("#inpPesquisa").addEventListener("keypress", function (event) {
-        // If the user presses the "Enter" key on the keyboard
-        if (event.key === "Enter") {
-            // Cancel the default action, if needed
-            event.preventDefault();
-            // Trigger the button element with a click
-            pesquisar()
-        }
-    })
 
     async function pesquisar() {
         let dadosenvio = construirDados(".dadosEnviar")
@@ -400,7 +388,7 @@
                                         <div class="row">
                                             <div class="col-md-8">
                                                 <button class="btn btn-primary btn-sm btn-block"
-                                                        onclick="location.href = '{% url 'controlelaboratorio' %}${lab.id}'">
+                                                        onclick="location.href =  '/noxus/controlelaboratorio/${lab.id}'">
                                                     Detalhes
                                                 </button>
 
@@ -414,7 +402,7 @@
                                         </div>
                                         <div class="row my-2">
                                             <div class="col-md-12">
-                                                <button class="btn btn-block btn-success btn-sm" onclick="location.href = '{% url 'reservarlaboratorio' %}${lab.id}'">Reservar</button>
+                                                <button class="btn btn-block btn-success btn-sm" onclick="location.href = '/noxus/reservarlaboratorio/${lab.id}'">Reservar</button>
                                             </div>
                                         </div>
                                     </div>
@@ -430,23 +418,65 @@
     }
 
 
-    const aplicarFiltro = (filtro) => {
+    const aplicarFiltro = async (filtro) => {
 
         if (filtro === "nome" || filtro === "descricao") {
-            document.querySelector("#inpPesquisa").classList.remove("d-none")
-            document.querySelector("#inpPesquisa").classList.add("dadosEnviar")
-            document.querySelector("#dataFiltro").classList.add("d-none")
-            document.querySelector("#dataFiltro").classList.remove("dadosEnviar")
-        } else {
-            document.querySelector("#inpPesquisa").classList.add("d-none")
-            document.querySelector("#inpPesquisa").classList.remove("dadosEnviar")
-            document.querySelector("#dataFiltro").classList.remove("d-none")
-            document.querySelector("#dataFiltro").classList.add("dadosEnviar")
-        }
+            document.querySelectorAll(".filtros").forEach(el => {
+                if (el.id.indexOf("Pesquisa") >= 0) {
+                    el.classList.add("dadosEnviar", "filtro-ativo")
+                    el.classList.remove("d-none")
+                } else {
+                    el.classList.remove("dadosEnviar", "filtro-ativo")
+                    el.classList.add("d-none")
+                }
+            })
+        } else if (filtro === "categoria") {
+            let resultado = await obterCategorias()
+            document.querySelector("#selCategoria").innerHTML = resultado.categorias.map(categoriaitem => {
+                return `<option value="${categoriaitem.id}"> ${categoriaitem.nomeCategoria} </option>`
+            }).join("")
 
+            document.querySelectorAll(".filtros").forEach(el => {
+                if (el.id.indexOf("Categoria") >= 0) {
+                    el.classList.add("dadosEnviar", "filtro-ativo")
+                    el.classList.remove("d-none")
+                } else {
+                    el.classList.remove("dadosEnviar", "filtro-ativo")
+                    el.classList.add("d-none")
+                }
+            })
+        } else {
+            document.querySelectorAll(".filtros").forEach(el => {
+                if (el.id.indexOf("data") >= 0) {
+                    el.classList.add("dadosEnviar", "filtro-ativo")
+                    el.classList.remove("d-none")
+                } else {
+                    el.classList.remove("dadosEnviar", "filtro-ativo")
+                    el.classList.add("d-none")
+                }
+            })
+        }
+        document.querySelector(".filtro-ativo").addEventListener("keypress", function (event) {
+            // If the user presses the "Enter" key on the keyboard
+            if (event.key === "Enter") {
+                // Cancel the default action, if needed
+                event.preventDefault();
+                // Trigger the button element with a click
+                pesquisar()
+            }
+        })
 
     }
 
+    document.querySelector(".filtro-ativo").addEventListener("keypress", function (event) {
+        // If the user presses the "Enter" key on the keyboard
+        if (event.key === "Enter") {
+            // Cancel the default action, if needed
+            event.preventDefault();
+            // Trigger the button element with a click
+            pesquisar()
+        }
+    })
     const apagarLaboratorio = async (id) => {
         alertify.defaults.glossary.title = "Confirmar ação"
         alertify.defaults.glossary.ok = "Sim"
@@ -472,8 +502,18 @@
 
             $("#toast").toast("show")
 
-            location.reload()
+            setTimeout(()=>{location.reload()}, 5000)
         })
+    }
+
+    async function obterCategorias() {
+        const requisicao = await realizarRequisicao(
+            {
+                origemRequisicao: `/noxus/categorias/`,
+                tipoRequisicao: "GET"
+            }
+        )
+        return await requisicao.json()
     }
 
 </script>
