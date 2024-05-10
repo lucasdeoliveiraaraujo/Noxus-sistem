@@ -147,10 +147,10 @@
                                                 </div>
                                             </div>
                                             <div class="flex-grow-1">
-                                                <span
+                                                  <span
                                                     class="fw-semibold d-block">{{ user.first_name|add:" "|add:user.last_name }}</span>
                                                 <small class="fw-semibold ">{{ user.username }}</small>
-                                                <small class="text-muted"> - Admin</small>
+                                                <small class="text-muted"> - {{ gruposusuario.name }}</small>
                                             </div>
                                         </div>
                                     </a>
@@ -159,7 +159,7 @@
                                     <div class="dropdown-divider"></div>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="{% url 'usuarios' %}">
+                                    <a class="dropdown-item" href="{% url 'meuusuario' user.id %}">
                                         <i class="bx bx-user me-2"></i>
                                         <span class="align-middle">Meu perfil</span>
                                     </a>

@@ -117,13 +117,7 @@
 
                 <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
                     <!-- Search -->
-                    <div class="navbar-nav align-items-center">
-                        <div class="nav-item d-flex align-items-center">
-                            <i class="bx bx-search fs-4 lh-0"></i>
-                            <input type="text" class="form-control border-0 shadow-none" placeholder=" Pesquisar..."
-                                   aria-label="Search...">
-                        </div>
-                    </div>
+
                     <!-- /Search -->
 
                     <ul class="navbar-nav flex-row align-items-center ms-auto">
@@ -163,10 +157,10 @@
                                                 </div>
                                             </div>
                                             <div class="flex-grow-1">
-                                                <span
+                                                  <span
                                                     class="fw-semibold d-block">{{ user.first_name|add:" "|add:user.last_name }}</span>
                                                 <small class="fw-semibold ">{{ user.username }}</small>
-                                                <small class="text-muted"> - Admin</small>
+                                                <small class="text-muted"> - {{ grupo.name }}</small>
                                             </div>
                                         </div>
                                     </a>
@@ -175,7 +169,7 @@
                                     <div class="dropdown-divider"></div>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="#">
+                                    <a class="dropdown-item" href="{% url 'meuusuario' user.id %}">
                                         <i class="bx bx-user me-2"></i>
                                         <span class="align-middle">Meu perfil</span>
                                     </a>

@@ -217,8 +217,9 @@ def buscausuario(request):
 
 @login_required
 def agendamentos(request):
+    usuario = User.objects.get(username=request.user)
     return render(request, "noxusapp/agendamentos.html",
-                  context={"usuario": Group.objects.get(user=User.objects.get(username=request.user).id)})
+                  context={"usuario": usuario, "grupo": Group.objects.get(user=User.objects.get(username=request.user).id)})
 
 
 @csrf_exempt
@@ -306,11 +307,12 @@ def categorias(request):
 @login_required
 def usuarios(request, id: int = None):
     grupos = Group.objects.all()
+    grupousuario = Group.objects.get(user=User.objects.get(username=request.user).id)
     if id != None:
         usuario = User.objects.get(id=id)
-        return render(request, "noxusapp/usuario.html", context={"usuario": usuario, "grupos": grupos})
+        return render(request, "noxusapp/usuario.html", context={"usuario": usuario, "grupos": grupos, "grupousuario": grupousuario})
     usuario = User()  # .objects.get(username=request.user)
-    return render(request, "noxusapp/usuario.html", context={"usuario": usuario, "grupos": grupos})
+    return render(request, "noxusapp/usuario.html", context={"usuario": usuario, "grupos": grupos, "gruposusuario": grupousuario})
 
 
 @csrf_exempt
@@ -376,8 +378,9 @@ def addusuario(request):
 @login_required
 def configuracoes(request):
     # if Group.objects.get(user=User.objects.get(username=request.user).id) == "Laboratorista":
+    grupos = Group.objects.get(user=User.objects.get(username=request.user).id)
     configuracoes = Configuracao.objects.filter(emailnotificao__isnull=False)
-    return render(request, "noxusapp/configuracoes.html", context={"configuracoes": configuracoes.values()[0]})
+    return render(request, "noxusapp/configuracoes.html", context={"configuracoes": configuracoes.values()[0], "grupo": grupos}, )
     # else:
     #     return render(request, "not_found.html")
 
@@ -432,7 +435,7 @@ def pesquisarlaboratorio(request):
         data = datahora[0].split("-")
         databusca = datetime.date(year=int(data[0]), month=int(data[1]), day=int(data[2]))
         laboratorios = Laboratorios.objects.exclude(
-            id__in=LaboratorioAgendamento.objects.filter(data=databusca).values("laboratorios_id"))
+            id__in=LaboratorioAgendamento.objects.filter(data=databusca, horaTermino=datahora[1]).values("laboratorios_id"))
 
     jsonenvio = {
         "laboratorios": []
