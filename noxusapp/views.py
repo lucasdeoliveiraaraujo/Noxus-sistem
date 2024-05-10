@@ -1,6 +1,4 @@
 import datetime
-import numbers
-
 import django.contrib.auth.models
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -8,10 +6,9 @@ import json
 from django.views.decorators.csrf import csrf_exempt
 from .models import Laboratorios, Configuracao, LaboratorioDisponibilidade, Menu, Categorias, LaboratorioAgendamento
 from .classes.utils import nvl, gerarUsuario
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group, GroupManager
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
-from django.http import Http404
+from django.core.mail import send_mail
 
 
 # Create your views here.
@@ -23,8 +20,9 @@ def handle404error(request, exception=None):
 
 @login_required
 def menu(request):
+    grupousuario = Group.objects.get(user=User.objects.get(username=request.user).id)
     dadosenvio = json.loads(request.body)
-    menus = Menu.objects.all()
+    menus = Menu.objects.filter(grupo__id=grupousuario.id)
     todosmenu = ""
     ativo = ""
     for menusitem in menus:
@@ -45,12 +43,15 @@ def menu(request):
 
 @login_required
 def novolaboratorio(request, id: int = None):
+    # if Group.objects.get(user=User.objects.get(username=request.user).id) == "Laboratorista":
     if id != None:
         laboratorio = Laboratorios.objects.filter(id=id)
         return render(request, "noxusapp/controlelaboratorio.html",
                       context={"laboratorio": laboratorio.values()[0], "rota": "noxus/atualizarlaboratorio/"})
 
     return render(request, 'noxusapp/controlelaboratorio.html', context={"rota": "noxus/addlaboratorio/"})
+    # else:
+    #     return render(request, "not_found.html")
 
 
 @csrf_exempt
@@ -60,7 +61,7 @@ def dellaboratorio(request):
     laboratorio = Laboratorios.objects.get(id=dadosenvio["id"])
     laboratorio.delete()
     return HttpResponse(
-        '{"tipo":"success","titulo":"Operção realizada com sucesso","mensagem":"Laboratorio apagado com sucesso!"}')
+        '{"tipo":"success","titulo":"Dados apagados com sucesso","mensagem":"Laboratorio apagado com sucesso!"}')
 
 
 @login_required
@@ -106,7 +107,8 @@ def atualizarlaboratorio(request):
             else:
                 disponibilidadelaboratorio.update(horaTermino=horario)
 
-    return HttpResponse('{"tipo":"success","titulo":"Dados salvos","mensagem":"Laboratorio salvo com sucesso"}')
+    return HttpResponse(
+        '{"tipo":"success","titulo":"Dados salvos com sucesso","mensagem":"Laboratorio salvo com sucesso"}')
 
 
 @login_required
@@ -114,32 +116,47 @@ def atualizarlaboratorio(request):
 def addlaboratorio(request):
     dadosenvio = json.loads(request.body)
     laboratorio = Laboratorios()
-    disponibilidadelaboratorio = LaboratorioDisponibilidade()
     categoria = Categorias.objects.get(id=dadosenvio["categoriaLaboratorio"])
     laboratorio.descricao = str(dadosenvio["descricaoLaboratorio"]).strip()
     laboratorio.nomeLaboratorio = str(dadosenvio["nomeLaboratorio"]).strip()
     laboratorio.local = str(dadosenvio["localizacao"]).strip()
     laboratorio.categoria_id = categoria.id
     laboratorio.save()
-
+    print("antes")
     for diasemana in dadosenvio["horarios"]:
+        print("dentro do for dia semana :" + diasemana)
+        disponibilidadelaboratorio = LaboratorioDisponibilidade()
         disponibilidadelaboratorio.diaSemana = str(diasemana).strip()
-        for indicehorario, horario in enumerate(dadosenvio["horarios"][diasemana]):
-            if indicehorario == 0:
-                disponibilidadelaboratorio.horaInicio = horario
-            else:
-                disponibilidadelaboratorio.horaTermino = horario
+        if len(dadosenvio["horarios"][diasemana]) > 0:
+            for indicehorario, horario in enumerate(dadosenvio["horarios"][diasemana]):
+                print("dentro do for horario :" + horario)
+                if indicehorario == 0:
+                    disponibilidadelaboratorio.horaInicio = horario
+                else:
+                    disponibilidadelaboratorio.horaTermino = horario
+                disponibilidadelaboratorio.laboratorios_id = laboratorio.id
+                disponibilidadelaboratorio.save()
+        else:
+            for horario in range(2):
+                print("dentro do for horario :" + str(horario))
+                if horario == 0:
+                    disponibilidadelaboratorio.horaInicio = None
+                else:
+                    disponibilidadelaboratorio.horaTermino = None
+                disponibilidadelaboratorio.laboratorios_id = laboratorio.id
+                print(laboratorio.id)
+                print(disponibilidadelaboratorio.diaSemana)
+                disponibilidadelaboratorio.save()
 
-        disponibilidadelaboratorio.laboratorios_id = laboratorio.id
-        disponibilidadelaboratorio.save()
-
-    return HttpResponse('{"tipo":"success","titulo":"Dados salvos","mensagem":"Laboratorio salvo com sucesso"}')
+    return HttpResponse(
+        '{"tipo":"success","titulo":"Dados salvos com sucesso","mensagem":"Laboratorio salvo com sucesso"}')
 
 
 @login_required
 def homelaboratorio(request):
+    grupousuario = Group.objects.get(user=User.objects.get(username=request.user).id)
     laboratorios = Laboratorios.objects.all()
-    return render(request, 'noxusapp/laboratorios.html', context={"laboratorios": laboratorios})
+    return render(request, 'noxusapp/laboratorios.html', context={"laboratorios": laboratorios, "grupo": grupousuario})
 
 
 def esqueceusenha(request):
@@ -151,8 +168,57 @@ def novousuario(request):
 
 
 @login_required
+@csrf_exempt
+def alterarusuario(request):
+    # if Group.objects.get(user=User.objects.get(username=request.user).id) == "Laboratorista":
+    dados = json.loads(request.body)
+    nome = dados["nome"].upper().split()
+    sobrenome = ""
+    usuario = User.objects.get(id=dados["id"])
+    for indx, nomes in enumerate(nome):
+        if indx == 0:
+            usuario.first_name = nomes
+        else:
+            sobrenome = sobrenome + f"{nomes} "
+    usuario.last_name = sobrenome.strip()
+    usuario.email = str(dados["email"].lower()).strip()
+    grupo = Group.objects.get(id=dados["perfil"])
+    usuario.groups.clear()
+    usuario.groups.add(grupo)
+    usuario.save()
+
+    return HttpResponse(json.dumps(
+        {"tipo": "success", "titulo": "Dados salvos com sucesso", "mensagem": "Usuário alterado com sucesso"}))
+    # else:
+    #     return HttpResponse(json.dumps(
+    #         {"tipo": "error", "titulo": "Permissão", "mensagem": "Você não possui permissão para alterar essas configurações"}))
+
+
+@login_required
+@csrf_exempt
+def buscausuario(request):
+    dados = json.loads(request.body)
+    try:
+
+        usuario = User.objects.get(username=str(dados["pesquisa"]).upper())
+        print(usuario)
+        grupo = Group.objects.get(user=User.objects.get(username=usuario.username).id)
+        print(grupo)
+    except User.DoesNotExist:
+        return HttpResponse(
+            json.dumps({"tipo": "warning", "titulo": "Ops", "mensagem": "Não encontrou o usuario que está buscando"}))
+    dadosenvio = {}
+    dadosenvio["nome"] = f"{usuario.first_name} {usuario.last_name}"
+    dadosenvio["email"] = usuario.email
+    dadosenvio["perfil"] = grupo.id
+
+    return HttpResponse(json.dumps(dadosenvio))
+
+
+@login_required
 def agendamentos(request):
-    return render(request, "noxusapp/agendamentos.html")
+    return render(request, "noxusapp/agendamentos.html",
+                  context={"usuario": Group.objects.get(user=User.objects.get(username=request.user).id)})
 
 
 @csrf_exempt
@@ -205,11 +271,22 @@ def obterdetalhamentoreserva(request):
 
 
 @login_required
+@csrf_exempt
 def addcategoria(request):
     dadosenvio = json.loads(request.body)
     categoria = Categorias()
     categoria.nomeCategoria = dadosenvio["nomeCategoria"]
     categoria.save()
+    return HttpResponse(
+        json.dumps({"tipo": "success", "titulo": "Dados salvos com sucesso", "mensagem": "Categoria adicionada"}))
+
+
+@login_required
+def delcategoria(request):
+    dados = json.loads(request.body)
+    categoria = Categorias.objects.get(id=dados["id"]).delete()
+    return HttpResponse(
+        json.dumps({"tipo": "success", "titulo": "Dados apagados com sucesso", "mensagem": "Categoria apagada"}))
 
 
 @login_required
@@ -228,17 +305,19 @@ def categorias(request):
 
 @login_required
 def usuarios(request, id: int = None):
+    grupos = Group.objects.all()
     if id != None:
         usuario = User.objects.get(id=id)
-        return render(request, "noxusapp/usuario.html", context={"usuario": usuario})
-    usuario = User()
-    return render(request, "noxusapp/usuario.html", context={"usuario": usuario})
+        return render(request, "noxusapp/usuario.html", context={"usuario": usuario, "grupos": grupos})
+    usuario = User()  # .objects.get(username=request.user)
+    return render(request, "noxusapp/usuario.html", context={"usuario": usuario, "grupos": grupos})
 
 
-@login_required
+@csrf_exempt
 def addusuario(request):
     dados = json.loads(request.body)
     nomeusuario = gerarUsuario(dados["nome"])
+
     try:
         User.objects.get(username=nomeusuario)
     except django.contrib.auth.models.User.DoesNotExist:
@@ -252,14 +331,55 @@ def addusuario(request):
                 sobrenome += f"{nomes} "
 
         usuario.last_name = sobrenome.strip()
+        grupo = Group.objects.get(id=2)
+        usuario.groups.clear()
+        usuario.groups.add(grupo)
         usuario.save()
-        return HttpResponse('{"tipo": "success", "titulo": "Usuário criado", "mensagem": "Usuário criado com sucesso"}')
+        configuracao = Configuracao.objects.get(id=1)
+
+        send_mail("Novo aqui ?",
+                  "O seu usuário foi criado com sucesso. Agora você pode acessar a plataforma Noxus e realizar o seu agendamento o quanto antes."
+                  f" O seu usuário é: {usuario.username} ", configuracao.emailnotificao, [usuario.email],
+                  fail_silently=False)
+        return HttpResponse(json.dumps({"tipo": "success", "titulo": "Usuário criado",
+                                        "mensagem": f"Usuário criado com sucesso. O seu usuário foi enviado para {usuario.email}"}))
+    nomeusuario = gerarUsuario(dados["nome"], True)
+    try:
+        User.objects.get(username=nomeusuario)
+    except django.contrib.auth.models.User.DoesNotExist:
+        usuario = User.objects.create_user(nomeusuario, dados["email"], dados["senha"])
+        nome = dados["nome"].upper().split()
+        sobrenome = ""
+        for indice, nomes in enumerate(nome):
+            if indice == 0:
+                usuario.first_name = nomes
+            else:
+                sobrenome += f"{nomes} "
+        grupo = Group.objects.get(id=2)
+        usuario.groups.clear()
+        usuario.groups.add(grupo)
+
+        usuario.last_name = sobrenome.strip()
+        usuario.save()
+        configuracao = Configuracao.objects.get(id=1)
+
+        send_mail("Novo aqui ?",
+                  "O seu usuário foi criado com sucesso. Agora você pode acessar a plataforma Noxus e realizar o seu agendamento o quanto antes."
+                  f" O seu usuário é: {usuario.username} ", configuracao.emailnotificao, [usuario.email],
+                  fail_silently=False)
+        return HttpResponse(json.dumps({"tipo": "success", "titulo": "Usuário criado",
+                                        "mensagem": f"Usuário criado com sucesso. O seu usuário foi enviado para {usuario.email}"}))
+    return HttpResponse(
+        json.dumps({"tipo": "warning", "titulo": "Usuário existente", "mensagem": "Tente criar o usuário novamente"}))
 
 
 @login_required
 def configuracoes(request):
+    # if Group.objects.get(user=User.objects.get(username=request.user).id) == "Laboratorista":
     configuracoes = Configuracao.objects.filter(emailnotificao__isnull=False)
     return render(request, "noxusapp/configuracoes.html", context={"configuracoes": configuracoes.values()[0]})
+    # else:
+    #     return render(request, "not_found.html")
 
 
 @login_required
@@ -373,7 +493,8 @@ def obterhorariosreservados(request):
 
     try:
 
-        horarioreservado = LaboratorioAgendamento.objects.filter(laboratorios_id=dados["id"], data=databusca).order_by("horaInicio")
+        horarioreservado = LaboratorioAgendamento.objects.filter(laboratorios_id=dados["id"], data=databusca).order_by(
+            "horaInicio")
         print(horarioreservado)
         if horarioreservado.count() > 0:
             for horario in horarioreservado:
@@ -400,7 +521,9 @@ def addreserva(request):
 
     if request.method == "POST":
         try:
-            horarioreservado = LaboratorioAgendamento.objects.get(laboratorios_id=dados["id"], data=databusca, horaInicio=dados["horaInicio"],horaTermino=dados["horaTermino"])
+            horarioreservado = LaboratorioAgendamento.objects.get(laboratorios_id=dados["id"], data=databusca,
+                                                                  horaInicio=dados["horaInicio"],
+                                                                  horaTermino=dados["horaTermino"])
             return HttpResponse(
                 '{"tipo":"warning", "titulo": "Reserva encontrada", "mensagem": "Foi encontrado uma reserva para essa data e horário. Verifique com o laboratorista"}')
         except LaboratorioAgendamento.DoesNotExist:
@@ -414,12 +537,16 @@ def addreserva(request):
     else:
         try:
 
-            horarioreservado = LaboratorioAgendamento.objects.get(id=dados["idAgendamento"], laboratorios_id=dados["id"], data=dados["data"], horaInicio=dados["horaInicio"], horaTermino=dados["horaTermino"])
+            horarioreservado = LaboratorioAgendamento.objects.get(id=dados["idAgendamento"],
+                                                                  laboratorios_id=dados["id"], data=dados["data"],
+                                                                  horaInicio=dados["horaInicio"],
+                                                                  horaTermino=dados["horaTermino"])
 
             return HttpResponse(
                 '{"tipo":"warning", "titulo": "Reserva encontrada", "mensagem": "Foi encontrado uma reserva para essa data e horário. Verifique com o laboratorista"}')
         except LaboratorioAgendamento.DoesNotExist:
-            horarioreservado = LaboratorioAgendamento.objects.get(id=dados["idAgendamento"], laboratorios_id=dados["id"])
+            horarioreservado = LaboratorioAgendamento.objects.get(id=dados["idAgendamento"],
+                                                                  laboratorios_id=dados["id"])
             horarioreservado.data = databusca
             horarioreservado.horaInicio = dados["horaInicio"]
             horarioreservado.horaTermino = dados["horaTermino"]
@@ -428,11 +555,12 @@ def addreserva(request):
             return HttpResponse(
                 '{"tipo":"success", "titulo": "Dados salvos com sucesso", "mensagem": "Reserva realizada"}')
 
+
 @login_required
 @csrf_exempt
 def delreserva(request):
     dados = json.loads(request.body)
     laboratorio = LaboratorioAgendamento.objects.get(id=dados["id"])
     laboratorio.delete()
-    return HttpResponse(
-        '{"tipo":"success", "titulo": "Operação realizada com sucesso", "mensagem": "Reserva removida da lista de agendamentos"}')
+    return HttpResponse(json.dumps({"tipo": "success", "titulo": "Dados apagados com sucesso",
+                                    "mensagem": "Reserva removida da lista de agendamentos"}))

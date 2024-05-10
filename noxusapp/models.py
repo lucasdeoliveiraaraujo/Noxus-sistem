@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 
 # Create your models here.
 class Categorias(models.Model):
@@ -29,6 +29,7 @@ class Menu(models.Model):
     nome = models.CharField(max_length=50, default=None, null=True, blank=True)
     icone = models.CharField(max_length=1000, default=None, null=True, blank=True)
     url = models.CharField(max_length=200, default=None, null=True, blank=True)
+    grupo = models.ForeignKey(Group, on_delete=models.DO_NOTHING, blank=True, null=True)
 
 class Configuracao(models.Model):
     emailnotificao = models.EmailField(max_length=200, default=None, null=True, blank=True)

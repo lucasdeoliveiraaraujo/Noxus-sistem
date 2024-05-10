@@ -179,7 +179,7 @@
                                                 <span
                                                     class="fw-semibold d-block">{{ user.first_name|add:" "|add:user.last_name }}</span>
                                                 <small class="fw-semibold ">{{ user.username }}</small>
-                                                <small class="text-muted"> - Admin</small>
+                                                <small class="text-muted"> - {{ grupo.name }}</small>
                                             </div>
                                         </div>
                                     </a>
@@ -188,7 +188,7 @@
                                     <div class="dropdown-divider"></div>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="{% url 'meuusuario' user.id %} ">
+                                    <a class="dropdown-item" href="{% url 'meuusuario' user.id %}">
                                         <i class="bx bx-user me-2"></i>
                                         <span class="align-middle">Meu perfil</span>
                                     </a>
@@ -221,12 +221,15 @@
                                 Laboratórios
                             </h4>
                         </div>
+
+                        {% if grupo.name == "Laboratorista" %}
                         <div class="col-md-2 ">
                             <button class="btn btn-sm btn-primary pull-right"
                                     onclick="window.location= '/noxus/controlelaboratorio'">
                                 Adicionar laboratório
                             </button>
                         </div>
+                        {% endif %}
                     </div>
 
                     <div class="row" id="divLaboratorios">
@@ -260,6 +263,8 @@
                                         </div>
 
                                         <div class="row">
+                                            {% if grupo.name == "Laboratorista" %}
+
                                             <div class="col-md-8">
                                                 <button class="btn btn-primary btn-sm btn-block"
                                                         onclick="location.href = `/noxus/controlelaboratorio/{{ laboratorio.id }}`">
@@ -273,6 +278,7 @@
                                                     <i class="bx bx-trash"></i>
                                                 </button>
                                             </div>
+                                            {% endif %}
                                         </div>
                                         <div class="row my-2">
                                             <div class="col-md-12">
@@ -322,9 +328,9 @@
 </div>
 
 <!-- Overlay -->
-<div class="layout-overlay layout-menu-toggle"></div>
+{#<div class="layout-overlay layout-menu-toggle"></div>#}
 
-<script src="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/alertify.min.js"></script>
+
 
 
 <!-- / Layout wrapper -->
@@ -335,7 +341,7 @@
 <script src="{% static 'assets/vendor/libs/popper/popper.js' %}"></script>
 <script src="{% static 'assets/vendor/js/bootstrap.js' %}"></script>
 <script src="{% static 'assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js' %}"></script>
-
+<script async defer src="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/alertify.min.js"></script>
 <script src="{% static 'assets/vendor/js/menu.js' %}"></script>
 <script src="{% static 'assets/vendor/js/validadores.js' %}"></script>
 <script src="{% static 'assets/vendor/js/toast.js' %}"></script>
@@ -502,7 +508,7 @@
 
             $("#toast").toast("show")
 
-            setTimeout(()=>{location.reload()}, 5000)
+            setTimeout(()=>{location.reload()}, 2000)
         })
     }
 

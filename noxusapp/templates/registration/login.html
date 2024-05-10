@@ -140,7 +140,7 @@
 
                     <h4 class="mb-2">Bem vindo ao Noxus!👋 </h4>
                     <p class="mb-4">Inicie seu acesso e agende o seu laboratório</p>
-                    <form method="post" action="{% url 'login' %}">
+                    <form method="post" action="{% url 'login' %}" id="formLogin">
                         {% csrf_token %}
                         <div class="mb-3">
                             <div class="mb-3">
@@ -153,6 +153,7 @@
                                     placeholder="Digite o seu Usuário"
                                     autofocus
                                     title="o Usuário"
+                                    value=""
                                 />
                             </div>
                             <div class="mb-3 form-password-toggle">
@@ -171,17 +172,18 @@
                                         placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
                                         aria-describedby="senha"
                                         title="a Senha"
+                                        value=""
                                     />
                                     <span class="input-group-text cursor-pointer">
                                         <i class="bx bx-hide"></i>
                                     </span>
                                 </div>
                             </div>
-                            <div class="mb-3">
-                                <button class="btn btn-primary d-grid w-100" value="login" type="submit">Entrar</button>
+                            <div class="mb-3" >
+                                <button class="btn btn-primary w-100" value="login" type="submit" id="btnEnviar">Entrar</button>
                             </div>
                         </div>
-                        <input type="hidden" name="next" value="{{ next }}"/>
+{#                        <input type="hidden" name="next" value="{{ next }}"/>#}
                         <p class="text-center">
                             <span>Novo na plataforma ?</span>
                             <a href="{% url 'novousuario'%}">
@@ -209,6 +211,7 @@
 <script src="{% static 'assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js' %}"></script>
 <script src="{% static 'assets/vendor/js/toast.js' %}"></script>
 <script src="{% static 'assets/vendor/js/menu.js' %}"></script>
+<script src="{% static 'assets/vendor/js/bloquearBotao.js' %}"></script>
 <!-- endbuild -->
 
 <!-- Vendors JS -->
@@ -222,6 +225,7 @@
 <script async defer src="https://buttons.github.io/buttons.js"></script>
 <script>
     window.onload = () => {
+        desbloquearBotao("btnEnviar")
         let Mensagem = {
             tipo: "info",
             titulo: "Boas vindas",
@@ -231,6 +235,8 @@
             Mensagem.tipo = "danger"
             Mensagem.titulo = "Ops"
             Mensagem.mensagem = "O seu usuário e senha não combinam. <b> Tente novamente </b>"
+            document.querySelector("#usuario").value = ""
+            document.querySelector("#password").value = ""
         {% endif %}
 
         {% if next %}
@@ -255,7 +261,7 @@
 
 
     }
-
+    document.querySelector("#formLogin").onsubmit = () => { bloquearBotao("btnEnviar")}
 </script>
 </body>
 </html>

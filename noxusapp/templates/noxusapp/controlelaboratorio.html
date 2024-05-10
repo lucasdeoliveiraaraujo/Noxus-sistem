@@ -193,7 +193,7 @@
                                                       placeholder="Laboratório com 20 máquinas de alta potência pronto para atividades que exigem do dispositivo. Possui também climatização do ambiente...">{{ laboratorio.descricao }}</textarea>
                                             <span class="badge bg-primary bx-pull-right form-text" id="contadorLetras">
                                                 {% if laboratorio.id != None %}
-                                                    {{laboratorio.descricao|length}}
+                                                    {{ laboratorio.descricao|length }}
                                                 {% else %}
                                                     0
                                                 {% endif %}
@@ -330,7 +330,7 @@
 <div class="layout-overlay layout-menu-toggle"></div>
 
 <div class="modal fade show" id="mdlCategorias" tabindex="-1" style="display: none;" aria-modal="true" role="dialog">
-    <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel2">Categorias</h5>
@@ -355,9 +355,11 @@
                 <div class="row">
                     <div class="col-md-12">
                         <label for="nomeCategoria" class="form-label">Nome da categoria</label>
-                        <input type="text" class="form-control" id="nomeCategoria" placeholder="Informática"
+                        <input type="text" class="form-control dadosEnviarCategoria" id="nomeCategoria"
+                               placeholder="Informática"
                                aria-describedby="Categoria do laboratorio"
                                title="A Categoria do laboratório"
+                               name="nomeCategoria"
                                onkeydown="
                                     document.querySelector('#mdlCategorias #nomeCategoria').onkeyup = function(){
                                             this.value.length === '0' ? btnSalvarCategoria.disabled = true : btnSalvarCategoria.disabled = false
@@ -371,32 +373,27 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <div class="row">
-                    <div class="col-md-6">
-                        <button type="button" class="btn btn-secondary float-lg-start" data-bs-dismiss="modal">
-                            <i class='bx bx-window-close' ></i>
-                            Fechar
-                        </button>
-                    </div>
-                    <div class="col-md-6">
-                        <button type="button" class="btn btn-success float-lg-end" id="btnSalvarCategoria" disabled>
-                            <i class='bx bxs-save' ></i>
-                            Salvar
-                        </button>
-                    </div>
 
-                </div>
+                <button type="button" class="btn btn-secondary float-lg-start" data-bs-dismiss="modal">
+                    <i class='bx bx-window-close'></i>
+                    Fechar
+                </button>
+
+                <button type="button" class="btn btn-success float-lg-end" id="btnSalvarCategoria" onclick="adicionarCategoria()" disabled>
+                    <i class='bx bxs-save'></i>
+                    Salvar
+                </button>
             </div>
         </div>
     </div>
 </div>
 
 {% if laboratorio.id != None %}
-<input type="hidden" class="dadosEnviar" name="id" value="{{ laboratorio.id }}" />
+    <input type="hidden" class="dadosEnviar" name="id" value="{{ laboratorio.id }}"/>
 {% endif %}
 
 <!-- / Layout wrapper -->
-
+<script src="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/alertify.min.js"></script>
 <!-- Core JS -->
 <!-- build:js assets/vendor/js/core.js -->
 <script src="{% static 'assets/vendor/libs/jquery/jquery.js' %}"></script>
@@ -415,7 +412,7 @@
 <script src="{% static 'assets/js/main.js' %}"></script>
 
 <!-- Place this tag in your head or just before your close body tag. -->
-<script async defer src="https://buttons.github.io/buttons.js"></script>
+{#<script async defer src="https://buttons.github.io/buttons.js"></script>#}
 <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"
         integrity="sha256-AFAYEOkzB6iIKnTYZOdUf9FFje6lOTYdwRJKwTN5mks=" crossorigin="anonymous"></script>
 <script src="{% static 'assets/vendor/js/menus.js' %}"></script>
@@ -444,10 +441,10 @@
         {% if laboratorio.id != None %}
             document.querySelector("#selCategoriaLaboratorio").value = {{ laboratorio.categoria_id }}
         {% endif %}
-        $("#selCategoriaLaboratorio").select2({
-            maximumSelectionLength: 1,
-            multiple: true
-        });
+    $("#selCategoriaLaboratorio").select2({
+        maximumSelectionLength: 1,
+        multiple: true
+    });
         document.querySelector("span .select2-selection--multiple").style.borderColor = "#D9DEE3"
         document.querySelector("#Dom").click()
     }
@@ -455,13 +452,13 @@
     const obterHorariosDisponiveis = async (id = 0) => {
         let resultado = {
             horarios: {
-                "Dom": ["",""],
-                "Seg": ["",""],
-                "Ter": ["",""],
-                "Qua": ["",""],
-                "Qui": ["",""],
-                "Sex": ["",""],
-                "Sab": ["",""]
+                "Dom": ["", ""],
+                "Seg": ["", ""],
+                "Ter": ["", ""],
+                "Qua": ["", ""],
+                "Qui": ["", ""],
+                "Sex": ["", ""],
+                "Sab": ["", ""]
             }
         }
 
@@ -477,7 +474,6 @@
     }
 
 
-
     let idHorario = 1
 
     const obterNovoHorario = () => {
@@ -488,7 +484,7 @@
             <label for="horario${idHorario}" class="form-label">
               Fechamento
             </label>                                           
-            <input type="time" onkeydown="this.classList.remove('has-error')" onblur="adicionarHorario(this,1)" class="form-control entradasEnvio entradas horarios" title="Horário ${idHorario}" id="horario${idHorario}" placeholder="Horário" aria-describedby="horario${idHorario}">
+            <input type="time" onkeydown="this.classList.remove('has-error')" onblur="adicionarHorario(this,1)" class="form-control entradasEnvio horarios" title="Horário ${idHorario}" id="horario${idHorario}" placeholder="Horário" aria-describedby="horario${idHorario}">
           </div>
         </div>`
     }
@@ -520,14 +516,14 @@
 
     }
 
-    const deletarCategoria = async (id) => {
-        const requisicao = await realizarRequisicao(
-            {
-                origemRequisicao: `${location.origin}/noxus/delcategoria/`,
-                tipoRequisicao: "DEL",
-                conteudoRequisicao: {"id": id}
-            }
-        )
+    const adicionarCategoria = async () => {
+        const dadosEnvio = construirDados(".dadosEnviarCategoria")
+
+        const requisicao = await realizarRequisicao({
+            origemRequisicao: `{% url 'addcategoria' %}`,
+            tipoRequisicao: "POST",
+            conteudoRequisicao: dadosEnvio
+        })
 
         const resultado = await requisicao.json()
 
@@ -539,6 +535,35 @@
             })
 
         $("#toast").toast("show")
+        $("#mdlCategorias").modal("toggle")
+
+        setTimeout(()=>{location.reload(), 2000})
+    }
+
+    const deletarCategoria = async (id) => {
+
+        let requisicao = await realizarRequisicao(
+            {
+                origemRequisicao: `{% url 'delcategoria' %}`,
+                tipoRequisicao: "DEL",
+                conteudoRequisicao: {"id": id}
+            }
+        )
+
+        let resultado = await requisicao.json()
+
+        document.querySelector("#notificacao").innerHTML =
+            toastr({
+                theme: resultado.tipo,
+                title: resultado.titulo,
+                message: resultado.mensagem
+            })
+
+        $("#toast").toast("show")
+        $("#mdlCategorias").modal("toggle")
+
+        setTimeout(()=>{location.reload(), 2000})
+
     }
 
     document.querySelector("#btnSalvarLaboratorio").onclick = async () => {
@@ -548,9 +573,9 @@
         if (campos.length === 0) {
             let horariosSalvos = JSON.parse(sessionStorage.getItem("diasDisponiveis"))
             let dadosEnvio = construirDados(".dadosEnviar")
-            Object.keys(horariosSalvos).filter(el =>{
+            Object.keys(horariosSalvos).filter(el => {
                 return horariosSalvos[el].includes("")
-            }).forEach(diavazio =>{
+            }).forEach(diavazio => {
                 horariosSalvos[diavazio] = []
             })
             dadosEnvio.horarios = horariosSalvos
@@ -565,15 +590,15 @@
             if (requisicao.ok) {
                 let resultado = await requisicao.json()
                 document.querySelector("#notificacao").innerHTML =
-                toastr({
-                    theme: resultado.tipo ,
-                    title: resultado.titulo,
-                    message: resultado.mensagem
-                })
+                    toastr({
+                        theme: resultado.tipo,
+                        title: resultado.titulo,
+                        message: resultado.mensagem
+                    })
 
                 $("#toast").toast("show")
             }
-        }else {
+        } else {
             let elementos = campos.map(el => {
                 el.campo.classList.add("has-error")
                 return el.descricao
@@ -581,7 +606,7 @@
             elementos = elementos.substring(0, elementos.lastIndexOf(",")) + " e " + elementos.substring(elementos.lastIndexOf(",") + 1, elementos.length)
             document.querySelector("#notificacao").innerHTML =
                 toastr({
-                    theme: "warning" ,
+                    theme: "warning",
                     title: "Campos vazios",
                     message: `Verifique os campos: ${elementos}`
                 })

@@ -107,8 +107,8 @@
                     <div class="navbar-nav align-items-center">
                         <div class="nav-item d-flex align-items-center">
                             <i class="bx bx-search fs-4 lh-0"></i>
-                            <input type="text" class="form-control border-0 shadow-none" placeholder=" Pesquisar..."
-                                   aria-label="Pesquisar...">
+                            <input type="text" class="form-control border-0 shadow-none dadosEnviar" placeholder=" Pesquisar..."
+                                   aria-label="Pesquisar..." id="filtro" name="pesquisa">
                         </div>
                     </div>
                     <!-- /Search -->
@@ -147,7 +147,8 @@
                                                 </div>
                                             </div>
                                             <div class="flex-grow-1">
-                                                <span class="fw-semibold d-block">{{ user.first_name|add:" "|add:user.last_name }}</span>
+                                                <span
+                                                    class="fw-semibold d-block">{{ user.first_name|add:" "|add:user.last_name }}</span>
                                                 <small class="fw-semibold ">{{ user.username }}</small>
                                                 <small class="text-muted"> - Admin</small>
                                             </div>
@@ -158,7 +159,7 @@
                                     <div class="dropdown-divider"></div>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="{% url 'usuarios'  %}">
+                                    <a class="dropdown-item" href="{% url 'usuarios' %}">
                                         <i class="bx bx-user me-2"></i>
                                         <span class="align-middle">Meu perfil</span>
                                     </a>
@@ -204,7 +205,7 @@
                                             <input class="form-control entradas dadosEnviar" type="text" id="nome"
                                                    name="nome"
                                                    value="{{ usuario.first_name|add:" "|add:usuario.last_name }}"
-                                                   autofocus="" aria-describedby="inputGroupPrepend" >
+                                                   autofocus="" aria-describedby="inputGroupPrepend">
                                             <div id="nomeAjuda" class="form-text">
                                                 Nome utilizado pelo usuáro
                                             </div>
@@ -222,13 +223,16 @@
                                         <div class="row">
                                             <div class="col-md-6 mb-3">
                                                 <label for="perfil" class="form-label">Perfil</label>
-                                                    <select class="form-control entradasSeletor" type="text" id="perfil" name="perfil">
-
-                                                    </select>
-                                                    <div id="perfilAjuda" class="form-text">
-                                                        Perfil do usuário. Cada usuário pode possui apenas um perfil de
-                                                        acesso. O perfil defini quais dados o usuário pode acessar.
-                                                    </div>
+                                                <select class="form-control dadosEnviar entradasSeletor" type="text"
+                                                        id="perfil" name="perfil">
+                                                    {% for grupo in grupos %}
+                                                        <option value="{{ grupo.id }}"> {{ grupo.name }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                                <div id="perfilAjuda" class="form-text">
+                                                    Perfil do usuário. Cada usuário pode possui apenas um perfil de
+                                                    acesso. O perfil defini quais dados o usuário pode acessar.
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="row py-2">
@@ -240,6 +244,7 @@
 
                                         </div>
                                     </div>
+                                    <input type="hidden" class="dadosEnviar" name="id" value="{{ user.id }}">
                                     <!-- /Account -->
                                 </div>
 
@@ -277,7 +282,7 @@
     <div class="layout-overlay layout-menu-toggle"></div>
 </div>
 <!-- / Layout wrapper -->
-
+<div id="notificacao"></div>
 
 <!-- Core JS -->
 <!-- build:js assets/vendor/js/core.js'%} -->
@@ -306,8 +311,48 @@
     window.onload = async () => {
         menus("#menu")
     }
+     document.querySelector("#filtro").addEventListener("keypress", function (event) {
+        // If the user presses the "Enter" key on the keyboard
+        if (event.key === "Enter") {
+            // Cancel the default action, if needed
+            event.preventDefault();
+            // Trigger the button element with a click
+            pesquisar()
+        }
+    })
+    async function pesquisar() {
+        let dadosenvio = construirDados("#filtro")
+        let requisicao = await realizarRequisicao({
+            tipoRequisicao: "POST",
+            conteudoRequisicao: dadosenvio,
+            origemRequisicao: "{% url 'obterusuario' %}"
+        })
+        let resultado = await requisicao.json()
+        if (Object.keys(resultado).length > 0) {
+            document.querySelector("#notificacao").innerHTML =
+                toastr({
+                    theme: "success",
+                    title: "Encontrou",
+                    message: "Verifique os dados abaixo"
+                })
+            $("#toast").toast("show")
 
-    document.querySelector("#btnUsuario").onclick = async ()=>{
+            document.querySelector("#nome").value = resultado.nome
+            document.querySelector("#email").value = resultado.email
+            document.querySelector("#perfil").value = resultado.perfil
+        }else{
+            document.querySelector("#notificacao").innerHTML =
+                toastr({
+                    theme: "warning",
+                    title: "Não encontrou",
+                    message: "Verifique o termo utilizado. A pesquisa é mais efetiva usando o usuário"
+                })
+            $("#toast").toast("show")
+        }
+
+    }
+
+    document.querySelector("#btnUsuario").onclick = async () => {
         let entradas = entradaTextoValidar(document.querySelectorAll(".entradas"))
         let seletores = validarSeletor(document.querySelectorAll(".entradasSeletor"))
         let campos = entradas.concat(seletores)
@@ -315,24 +360,24 @@
             let dadosEnvio = construirDados(".dadosEnviar")
             let requisicao = await realizarRequisicao(
                 {
-                    origemRequisicao: `${location.origin}/addusuario`,
+                    origemRequisicao: `{% url 'alterarusuario' %}`,
                     conteudoRequisicao: dadosEnvio,
-                    tipoRequisicao: "POST"
+                    tipoRequisicao: "PUT"
                 }
             )
 
             if (requisicao.ok) {
                 let resultado = await requisicao.json()
                 document.querySelector("#notificacao").innerHTML =
-                toastr({
-                    theme: resultado.tipo ,
-                    title: resultado.titulo,
-                    message: resultado.mensagem
-                })
+                    toastr({
+                        theme: resultado.tipo,
+                        title: resultado.titulo,
+                        message: resultado.mensagem
+                    })
 
                 $("#toast").toast("show")
             }
-        }else {
+        } else {
             let elementos = campos.map(el => {
                 el.campo.classList.add("has-error")
                 return el.descricao
@@ -340,10 +385,11 @@
             elementos = elementos.substring(0, elementos.lastIndexOf(",")) + " e " + elementos.substring(elementos.lastIndexOf(",") + 1, elementos.length)
             document.querySelector("#notificacao").innerHTML =
                 toastr({
-                    theme: "warning" ,
+                    theme: "warning",
                     title: "Campos vazios",
                     message: `Verifique os campos: ${elementos}`
                 })
+            $("#toast").toast("show")
         }
     }
 </script>

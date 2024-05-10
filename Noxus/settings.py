@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 import mimetypes
 import os
+
+import django.core.mail.backends.console
+
 from decouple import config
 
 mimetypes.add_type("text/css", ".css", True)
@@ -28,7 +31,7 @@ SECRET_KEY = config("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config("DEBUG", cast=bool, default=False)
 
-ALLOWED_HOSTS = ["127.0.0.1"]
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -137,3 +140,4 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=False, cast=bool)
 EMAIL_BACKEND = config('EMAIL_BACKEND')
+

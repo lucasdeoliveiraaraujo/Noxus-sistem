@@ -50,8 +50,8 @@ def alterarquivoconfig(nomearquivo: str):
                         buffer.write(f"\nEMAIL_HOST_USER = {dados['emailnotificacao']}")
                     elif linhas.find("EMAIL_USE_TLS") == 0:
                         buffer.write(f"\nEMAIL_USE_TLS = {dados['tls']}")
-                    elif linhas.find("EMAIL_BACKEND") == 0:
-                        buffer.write(f"\nEMAIL_BACKEND = {dados['host']}")
+                    elif linhas.find("EMAIL_HOST") == 0:
+                        buffer.write(f"\nEMAIL_HOST = {dados['host']}")
                     else:
                         if linhas.find("[settings]") == 0:
                             buffer.write(" $ ".join(linhas.splitlines()))

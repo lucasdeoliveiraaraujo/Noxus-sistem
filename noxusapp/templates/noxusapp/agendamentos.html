@@ -269,7 +269,7 @@
             <div class="modal-body table-responsive text-nowrap" id="detalhe">
             </div>
             <div class="modal-footer">
-
+                {% if usuario.name == "Laboratorista" %}
                 <button type="button" class="btn btn-danger" onclick="apagarAgendamento(document.querySelector('#id').value)">
                     <i class="bx bx-trash"></i>
                     Apagar
@@ -278,7 +278,7 @@
                     <i class='bx bxs-edit'></i>
                     Editar
                 </button>
-
+                {% endif %}
 
                 <button type="button" class="btn btn-secondary " data-bs-dismiss="modal">
                     <i class='bx bx-window-close' ></i>
@@ -352,12 +352,6 @@
             eventClick: function (info) {
                 let id = info.event.id.split("|")
                 bterDetalhesAgendamento(id[0],id[1])
-                {#alert('Event: ' + );#}
-                {#alert('Coordinates: ' + info.jsEvent.pageX + ',' + info.jsEvent.pageY);#}
-                {#alert('View: ' + info.view.type);#}
-
-                // change the border color just for fun
-                //info.el.style.borderColor = 'red';
             }
         });
         calendar.render();
@@ -390,7 +384,7 @@
 
             $("#mdlAgendamento").modal("toggle")
 
-            setTimeout(()=>{location.reload()}, 5000)
+            setTimeout(()=>{location.reload()}, 2000)
         })
     }
     async function bterDetalhesAgendamento(id,idLaboratorio) {
@@ -416,7 +410,7 @@
                 <input type="hidden" class="dadosenviarmodal" id="id" value="${id}"/>
                 <div class="col-md-5">
                     <label for="dataAgendamento" >Data</label>
-                    <input class="form-control" type="date" value="2021-06-18" id="dataAgendamento" readonly>
+                    <input class="form-control" type="date" value="${resultado.datareservada}" id="dataAgendamento" readonly>
                 </div>
                 <div class="col-md-3">
                     <label for="horaInicio">Horário inicio</label>

@@ -164,7 +164,7 @@
                             <span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
                         </div>
                     </div>
-                    <button class="btn btn-primary d-grid w-100" id="btnUsuario">Cadastrar</button>
+                    <button class="btn btn-primary text-center w-100" id="btnUsuario">Cadastrar</button>
 
 
                     <p class="text-center py-2">
@@ -179,7 +179,7 @@
         </div>
     </div>
 </div>
-
+<div id="notificacao"></div>
 <!-- / Content -->
 
 <!-- Core JS -->
@@ -208,14 +208,16 @@
      document.querySelector("#btnUsuario").onclick = async ()=>{
         let campos = entradaTextoValidar(document.querySelectorAll(".entradas"))
         if (campos.length === 0) {
+             document.querySelector("#btnUsuario").innerHTML = `<div class="spinner-grow text-dark" role="status">
+                                                      <span class="visually-hidden">Aguarde...</span>
+                                                    </div>`
+            document.querySelector("#btnUsuario").disabled = true
             let dadosEnvio = construirDados(".dadosEnviar")
-            let requisicao = await realizarRequisicao(
-                {
-                    origemRequisicao: `${location.origin}/noxus/addusuario/`,
+            let requisicao = await realizarRequisicao({
+                    origemRequisicao: `{% url 'addusuario' %}`,
                     conteudoRequisicao: dadosEnvio,
                     tipoRequisicao: "POST"
-                }
-            )
+            })
 
             if (requisicao.ok) {
                 let resultado = await requisicao.json()
@@ -228,6 +230,9 @@
 
                 $("#toast").toast("show")
             }
+             document.querySelector("#btnUsuario").disabled = false
+            document.querySelector("#btnUsuario").innerHTML = "Cadastra"
+            setTimeout(()=>location.href = "{% url 'login' %}", 2000)
         }else {
             let elementos = campos.map(el => {
                 el.campo.classList.add("has-error")

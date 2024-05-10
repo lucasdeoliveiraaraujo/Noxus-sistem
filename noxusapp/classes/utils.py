@@ -5,7 +5,7 @@ def nvl(valor: str, retorno: str):
         return valor
 
 
-def gerarUsuario(nomePessoa):
+def gerarUsuario(nomePessoa, usuarioexiste: bool = False):
     import unicodedata
     import random
     nome = nomePessoa.split()
@@ -19,7 +19,12 @@ def gerarUsuario(nomePessoa):
 
         usuario = str(nome[inicial][0] + nome[termino]).upper()
     else:
-        usuario = f"{nome[0]}.{nome[1]}.{nome[2]}".upper()
+        usuario = ""
+        for idx, dados in enumerate(nome):
+            usuario = dados + "." + usuario
+        usuario = str(usuario.upper().strip())[0:len(usuario) - 1]
 
+    if usuarioexiste:
+        usuario = usuario + str(random.randint(0, 9999999))
     usuario = ''.join(ch for ch in unicodedata.normalize('NFKD', usuario) if not unicodedata.combining(ch))
     return usuario
